@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E3428">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grimorio">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Grimorio — Listas de Conjuros PF2e</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#EFE7D2;
+    --parchment-dark:#E4D9BC;
+    --ink:#332619;
+    --ink-soft:#5c4c38;
+    --green-deep:#1E3428;
+    --green-line:#2c4a38;
+    --gold:#AD8A3E;
+    --gold-bright:#C9A227;
+
+    --arcano:#4B3B79;
+    --arcano-soft:#EDE9F5;
+    --divino:#A67C1E;
+    --divino-soft:#F7EFDA;
+    --ocultista:#7A2338;
+    --ocultista-soft:#F6E7EA;
+    --primigenio:#33562E;
+    --primigenio-soft:#E7EFE1;
+
+    --c-bardo:#8a2f6b;
+    --c-bardo-soft:#f6e7f0;
+    --c-clerigo:#A67C1E;
+    --c-clerigo-soft:#F7EFDA;
+    --c-druida:#2f6b3a;
+    --c-druida-soft:#e6f0e8;
+    --c-explorador:#3a6b4f;
+    --c-explorador-soft:#e7f0ea;
+    --c-brujo:#5a2f6b;
+    --c-brujo-soft:#efe6f5;
+    --c-mago:#2f4f8a;
+    --c-mago-soft:#e6ecf7;
+    --c-campeon:#a67c1e;
+    --c-campeon-soft:#f7efda;
+    --c-monje:#6b4a2f;
+    --c-monje-soft:#f2e9e0;
+    --c-oraculo:#7a2338;
+    --c-oraculo-soft:#f6e7ea;
+    --c-hechicero:#8a1f5c;
+    --c-hechicero-soft:#f5e5ef;
+    --c-invocador:#1f6b8a;
+    --c-invocador-soft:#e3eff5;
+    --c-magoespada:#4a1f8a;
+    --c-magoespada-soft:#ece3f5;
+    --c-nigromante:#3a3a3a;
+    --c-nigromante-soft:#e8e8e8;
+    --c-mistico:#1f8a6b;
+    --c-mistico-soft:#e3f5ee;
+    --c-witchwarper:#8a5c1f;
+    --c-witchwarper-soft:#f5ece0;
+    --c-animista:#2f7a4a;
+    --c-animista-soft:#e6f2ea;
+    --c-cinetista:#b5651d;
+    --c-cinetista-soft:#f6e9db;
+    --c-psiquico:#5b3e8f;
+    --c-psiquico-soft:#ece3f7;
+
+    --accent: var(--arcano);
+    --accent-soft: var(--arcano-soft);
+  }
+
+  body.theme-sf{
+    --parchment:#0c1826;
+    --parchment-dark:#081220;
+    --ink:#dff3f6;
+    --ink-soft:#8fb4bd;
+    --green-deep:#081a2e;
+    --green-line:#0d3a44;
+    --gold:#1fb6c9;
+    --gold-bright:#43e0f2;
+  }
+  body.theme-sf .search-wrap input{
+    background:#0f2436; border-color:#1fb6c9; color:#dff3f6;
+  }
+  body.theme-sf .brand .sub{ color:#7fd6e0; }
+  body.theme-sf header.top{
+    background: linear-gradient(180deg, #081a2e, #050d18 90%);
+    border-bottom-color:#1fb6c9;
+  }
+  body.theme-sf .rank-title{ color:#43e0f2; }
+  body.theme-sf .spell-detail{ background:#0f2436; }
+  body.theme-sf li.spell-row:hover{ background:color-mix(in srgb, var(--accent) 22%, var(--parchment) 78%); }
+  body.theme-sf li.spell-row.prepared{ background:color-mix(in srgb, var(--accent) 30%, var(--parchment) 70%); }
+  body.theme-sf .detail-heightened{ background:color-mix(in srgb, var(--accent) 20%, var(--parchment) 80%); }
+  body.theme-sf .detail-stats dd, body.theme-sf .detail-desc{ color:var(--ink); }
+  body.theme-sf::before{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(67,224,242,0.03) 0px, rgba(67,224,242,0.03) 1px, transparent 1px, transparent 3px);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.35), transparent 55%),
+      var(--parchment);
+    color:var(--ink);
+    font-family:'EB Garamond', serif;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  header.top{
+    position:sticky; top:0; z-index:50;
+    background: linear-gradient(180deg, var(--green-deep), #16281f 90%);
+    color:#EFE7D2;
+    border-bottom:3px solid var(--gold);
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .top-inner{
+    max-width:1180px; margin:0 auto; padding:14px 20px 12px;
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:10px;
+  }
+  .brand .glyph{
+    font-family:'Cinzel Decorative', serif;
+    color:var(--gold-bright);
+    font-size:22px;
+  }
+  .brand h1{
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.06em;
+    margin:0;
+    text-transform:uppercase;
+  }
+  .brand .sub{
+    font-family:'EB Garamond', serif;
+    font-style:italic;
+    color:#c9c1a8;
+    font-size:14px;
+    margin-left:4px;
+  }
+
+  .controls{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  }
+  .search-wrap{
+    position:relative; flex:1 1 260px; min-width:200px;
+  }
+  .search-wrap input{
+    width:100%;
+    background:#f6f1e2;
+    border:1px solid #7c6a45;
+    border-radius:4px;
+    padding:9px 12px 9px 32px;
+    font-family:'EB Garamond', serif;
+    font-size:16px;
+    color:var(--ink);
+  }
+  .search-wrap input:focus{outline:2px solid var(--gold-bright); outline-offset:1px;}
+  .search-wrap svg{
+    position:absolute; left:9px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; opacity:0.55;
+  }
+
+  button.toggle-prep{
+    font-family:'Cinzel', serif;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:transparent;
+    border:1px solid var(--gold);
+    color:#EFE7D2;
+    padding:9px 14px;
+    border-radius:4px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s, color .15s;
+  }
+  button.toggle-prep[aria-pressed="true"]{
+    background:var(--gold-bright);
+    color:#1E3428;
+    border-color:var(--gold-bright);
+  }
+  button.toggle-prep:hover{background:rgba(201,162,39,0.25);}
+  button.toggle-prep[aria-pressed="true"]:hover{background:var(--gold-bright);}
+
+  .prep-count{
+    font-family:'Cinzel', serif;
+    font-size:12.5px;
+    color:#c9c1a8;
+    white-space:nowrap;
+  }
+  .prep-count b{color:var(--gold-bright); font-size:14px;}
+  button.toggle-prep.known-toggle{border-color:#7a5fb0;}
+  button.toggle-prep.known-toggle[aria-pressed="true"]{background:#7a5fb0; color:#fff; border-color:#7a5fb0;}
+  button.toggle-prep.known-toggle:hover{background:rgba(122,95,176,0.2);}
+  button.toggle-prep.known-toggle[aria-pressed="true"]:hover{background:#6a4fa0;}
+  .prep-count.known-count b{color:#7a5fb0;}
+
+  nav.schools{
+    display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;
+  }
+  nav.schools button{
+    font-family:'Cinzel', serif;
+    font-size:13.5px;
+    letter-spacing:0.03em;
+    padding:8px 16px 7px;
+    border:1px solid transparent;
+    border-bottom:none;
+    background:rgba(239,231,210,0.06);
+    color:#d9d2b8;
+    cursor:pointer;
+    border-radius:6px 6px 0 0;
+    position:relative;
+    top:1px;
+  }
+  nav.schools button .dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:7px; vertical-align:middle;
+  }
+  nav.schools button.active{
+    background:var(--parchment);
+    color:var(--ink);
+    font-weight:600;
+  }
+
+  main{
+    max-width:1180px; margin:0 auto; padding:22px 20px 80px;
+    position:relative; z-index:1;
+  }
+
+  .school-banner{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:18px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--accent);
+  }
+  .school-banner .icon{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'Cinzel Decorative',serif; font-size:17px;
+    flex-shrink:0;
+  }
+  .school-banner h2{
+    font-family:'Cinzel', serif;
+    font-size:26px;
+    margin:0;
+    color:var(--accent);
+  }
+  .school-banner p{
+    margin:2px 0 0; font-style:italic; color:var(--ink-soft); font-size:14px;
+  }
+
+  .rank-section{margin-bottom:26px;}
+  .rank-title{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Cinzel', serif;
+    font-size:14.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 8px;
+  }
+  .rank-title::after{
+    content:""; flex:1; height:1px;
+    background:linear-gradient(90deg, var(--accent), transparent);
+    opacity:0.5;
+  }
+  .rank-title .count{
+    font-family:'EB Garamond',serif; font-style:italic; text-transform:none;
+    letter-spacing:0; color:var(--ink-soft); font-size:13px;
+  }
+
+  ul.spell-list{list-style:none; margin:0; padding:0;}
+  li.spell-row{
+    display:flex; align-items:flex-start; gap:11px;
+    padding:8px 10px;
+    border-radius:5px;
+    cursor:pointer;
+    border-bottom:1px solid rgba(51,38,25,0.08);
+  }
+  li.spell-row:hover{background:var(--accent-soft);}
+  li.spell-row.prepared{background:var(--accent-soft);}
+  li.spell-row.prepared .name{font-weight:600;}
+  li.spell-row.known{box-shadow:inset 3px 0 0 #7a5fb0;}
+  li.spell-row.known:not(.prepared){background:rgba(122,95,176,0.07);}
+
+  .chk-wrap{display:flex; flex-direction:row; gap:5px; flex-shrink:0; margin-top:3px;}
+  .chk-known{
+    flex-shrink:0;
+    width:18px; height:18px;
+    border:1.5px solid var(--ink-soft);
+    border-radius:50%;
+    background:#f6f1e2;
+    display:flex; align-items:center; justify-content:center;
+  }
+  li.spell-row.known .chk-known{
+    background:#7a5fb0; border-color:#7a5fb0;
+  }
+  .chk-known svg{width:11px; height:11px; fill:none; stroke:#fff; stroke-width:2.5; opacity:0;}
+  li.spell-row.known .chk-known svg{opacity:1;}
+
+  .chk{
+    flex-shrink:0;
+    width:18px; height:18px;
+    border:1.5px solid var(--ink-soft);
+    border-radius:3px;
+    background:#f6f1e2;
+    display:flex; align-items:center; justify-content:center;
+  }
+  li.spell-row.prepared .chk{
+    background:var(--accent); border-color:var(--accent);
+  }
+  .chk svg{width:12px; height:12px; fill:none; stroke:#fff; stroke-width:3; opacity:0; }
+  li.spell-row.prepared .chk svg{opacity:1;}
+
+  .spell-text{flex:1; min-width:0;}
+  .name{
+    font-weight:600; color:var(--ink); margin-right:6px;
+  }
+  .rarity-badge{
+    font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.03em;
+    text-transform:uppercase; padding:1.5px 6px; border-radius:3px;
+    margin-right:6px; vertical-align:1px;
+    border:1px solid currentColor;
+  }
+  .rarity-badge.uncommon{color:#8a5a1f; background:#FBF0DC;}
+  .rarity-badge.rare{color:#7A2338; background:#F6E7EA;}
+  .source-badge{
+    font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.03em;
+    text-transform:uppercase; padding:1.5px 6px; border-radius:3px;
+    margin-right:6px; vertical-align:1px;
+    color:#33562E; background:#E7EFE1; border:1px solid currentColor;
+  }
+  .source-badge.sm{color:#4B3B79; background:#EDE9F5;}
+  .source-badge.da{color:#7A2338; background:#F6E7EA;}
+  .source-badge.hw{color:#8a5a1f; background:#FBF0DC;}
+  .source-badge.roe{color:#a63c1e; background:#FCEAE0;}
+  .source-badge.bc{color:#2c4a38; background:#E7EFE1;}
+  .source-badge.im{color:#5a3a7a; background:#F0E8F7;}
+  .source-badge.sf{color:#0e5a6b; background:#dff2f5;}
+  .source-badge.dm{color:#8a1f4a; background:#f7e3ec;}
+  .source-badge.ra{color:#1f6a4a; background:#e3f5ec;}
+  .source-badge.sk{color:#1f4a6a; background:#e3ecf5;}
+  .source-badge.fb{color:#a64a1f; background:#f7ece3;}
+  .source-badge.il{color:#4a1fa6; background:#ece3f7;}
+  .source-badge.kl{color:#1f4aa6; background:#e3ecf7;}
+  .source-badge.sg{color:#5a5a5a; background:#ececec;}
+  .source-badge.ap{color:#6a6a1f; background:#f2f2e3;}
+
+  .rarity-filter{
+    display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+  }
+  .rarity-filter span.lbl{
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.03em;
+    text-transform:uppercase; color:#c9c1a8; margin-right:2px;
+  }
+  .rarity-chip{
+    font-family:'EB Garamond', serif; font-size:13px;
+    padding:5px 12px; border-radius:14px; cursor:pointer;
+    border:1px solid #7c6a45; background:transparent; color:#d9d2b8;
+    transition:background .15s, color .15s;
+  }
+  .rarity-chip[aria-pressed="true"]{
+    background:var(--gold-bright); color:#1E3428; border-color:var(--gold-bright); font-weight:600;
+  }
+
+  .game-toggle{
+    display:flex; gap:6px; margin-bottom:10px;
+  }
+  .game-btn{
+    font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.03em;
+    text-transform:uppercase; padding:6px 14px; cursor:pointer;
+    border:1px solid var(--gold); border-radius:14px;
+    background:transparent; color:#d9d2b8;
+    transition:background .15s, color .15s;
+  }
+  .game-btn.active{
+    background:var(--gold-bright); color:#1E3428; font-weight:600;
+  }
+  body.theme-sf .game-btn.active{ color:#081a2e; }
+
+  .main-tabs{
+    display:flex; gap:4px; margin-bottom:10px;
+  }
+  .main-tab{
+    font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.03em;
+    text-transform:uppercase; padding:8px 16px; cursor:pointer;
+    border:1px solid #7c6a45; border-bottom:none; border-radius:6px 6px 0 0;
+    background:transparent; color:#c9c1a8;
+  }
+  .main-tab.active{
+    background:var(--paper, #f2ead9); color:#1E3428; font-weight:600;
+  }
+
+  .char-bar{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:9px;
+  }
+  .char-bar span.lbl{
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.03em;
+    text-transform:uppercase; color:#c9c1a8; margin-right:2px;
+  }
+  #charSelect{
+    font-family:'EB Garamond', serif; font-size:14px;
+    padding:5px 10px; border-radius:6px; cursor:pointer;
+    border:1px solid #7c6a45; background:#1E3428; color:#f2ead9;
+    max-width:180px;
+  }
+  .char-btn{
+    font-family:'EB Garamond', serif; font-size:13px;
+    padding:5px 10px; border-radius:14px; cursor:pointer;
+    border:1px solid #7c6a45; background:transparent; color:#d9d2b8;
+    transition:background .15s, color .15s;
+  }
+  .char-btn:hover{ background:rgba(255,255,255,0.08); }
+  .char-btn.danger{ border-color:#8a3a3a; color:#e0a8a8; }
+  .char-btn.danger:hover{ background:rgba(160,60,60,0.18); }
+
+  .desc{color:var(--ink-soft); font-size:15.5px;}
+
+  .badge-star{
+    color:var(--gold); font-size:12px; margin-left:2px;
+  }
+
+  .chevron{
+    flex-shrink:0; margin-top:4px; width:14px; height:14px;
+    color:var(--ink-soft); opacity:0.6;
+    transition:transform .15s;
+  }
+  li.spell-row.expanded .chevron{transform:rotate(90deg);}
+
+  .spell-detail{
+    padding:4px 10px 16px 39px;
+    border-bottom:1px solid rgba(51,38,25,0.08);
+    font-size:15px;
+    line-height:1.55;
+    color:var(--ink);
+    animation:fadeIn .15s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .detail-traits{
+    display:flex; flex-wrap:wrap; gap:5px; margin:2px 0 10px;
+  }
+  .trait-pill{
+    font-family:'Cinzel',serif; font-size:10.5px; letter-spacing:0.03em;
+    text-transform:uppercase; background:var(--accent); color:#fff;
+    padding:3px 8px; border-radius:3px;
+  }
+  .detail-stats{
+    display:grid; grid-template-columns:auto 1fr; gap:4px 10px;
+    margin-bottom:10px; font-size:14.5px;
+  }
+  .detail-stats dt{
+    font-weight:600; color:var(--accent); white-space:nowrap;
+  }
+  .detail-stats dd{margin:0; color:var(--ink);}
+  .detail-desc{white-space:pre-line; margin-bottom:8px;}
+  .detail-desc b{color:var(--accent);}
+  .detail-heightened{
+    background:var(--accent-soft); border-left:3px solid var(--accent);
+    padding:8px 10px; border-radius:0 4px 4px 0; white-space:pre-line;
+    font-size:14.5px;
+  }
+  .detail-heightened .label{font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:3px;}
+  .detail-note{font-style:italic; color:var(--ink-soft); font-size:13px; margin-top:8px;}
+
+  .empty-msg{
+    text-align:center; padding:60px 20px; color:var(--ink-soft); font-style:italic;
+  }
+
+  footer.note{
+    max-width:1180px; margin:0 auto; padding:0 20px 40px;
+    color:var(--ink-soft); font-size:13px; font-style:italic; text-align:center;
+    position:relative; z-index:1;
+  }
+
+  @media (max-width:640px){
+    .brand h1{font-size:18px;}
+    nav.schools button{font-size:12px; padding:7px 11px 6px;}
+    .school-banner h2{font-size:21px;}
+  }  /* ---- Móvil: filas horizontales con scroll en vez de envolver en varias líneas ---- */
+  @media (max-width: 640px){
+    .top-inner{ padding:10px 14px 8px; }
+    .brand{ margin-bottom:6px; }
+    .brand h1{ font-size:18px; }
+    .brand .sub{ font-size:12px; }
+
+    .game-toggle, .main-tabs, nav.schools, .rarity-filter, .char-bar{
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      margin-bottom:0;
+    }
+    .game-toggle::-webkit-scrollbar, .main-tabs::-webkit-scrollbar,
+    nav.schools::-webkit-scrollbar, .rarity-filter::-webkit-scrollbar,
+    .char-bar::-webkit-scrollbar{ display:none; }
+
+    .game-toggle{ margin-bottom:8px; }
+    nav.schools{ margin-top:8px; }
+    nav.schools button, .main-tab, .game-btn, .rarity-chip, .char-btn{
+      flex:0 0 auto; white-space:nowrap;
+    }
+    #charSelect{ flex:0 0 auto; max-width:120px; }
+    .rarity-filter .lbl, .char-bar .lbl{ flex:0 0 auto; }
+
+    .controls{ margin-top:8px; gap:8px; }
+    .search-wrap{ flex:1 1 100%; }
+    button.toggle-prep{ padding:8px 10px; font-size:12px; }
+    .prep-count{ font-size:12px; }
+
+    /* La cabecera se oculta al bajar y reaparece al subir, dejando más espacio para leer */
+    header.top{
+      transition: transform .25s ease;
+      will-change: transform;
+    }
+    header.top.header-hidden{
+      transform: translateY(-100%);
+    }
+    main{ padding-top:14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="glyph">✦</span>
+      <h1>Grimorio</h1>
+      <span class="sub" id="brandSub">Listas de conjuros · Pathfinder 2.ª ed.</span>
+    </div>
+    <div class="game-toggle" id="gameToggle">
+      <button class="game-btn active" data-game="pf">Pathfinder</button>
+      <button class="game-btn" data-game="sf">Starfinder</button>
+    </div>
+    <div class="main-tabs" id="mainTabs">
+      <button class="main-tab active" data-tab="spells">Conjuros</button>
+      <button class="main-tab" data-tab="focus">Conjuros de foco</button>
+      <button class="main-tab" data-tab="rituals">Rituales</button>
+      <button class="main-tab" data-tab="feats">Dotes</button>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Buscar conjuro por nombre o efecto…" autocomplete="off">
+      </div>
+      <button class="toggle-prep" id="prepToggle" aria-pressed="false">☆ Solo preparados</button>
+      <button class="toggle-prep known-toggle" id="knownToggle" aria-pressed="false">✦ Solo aprendidos</button>
+      <button class="toggle-prep" id="sfOnlyToggle" aria-pressed="false" style="display:none;">☆ Solo Starfinder</button>
+      <span class="prep-count" id="prepCount"></span>
+      <span class="prep-count known-count" id="knownCount"></span>
+    </div>
+    <nav class="schools" id="schoolNav"></nav>
+    <nav class="schools" id="classNav" style="display:none;"></nav>
+    <nav class="schools" id="featNav" style="display:none;"></nav>
+    <nav class="schools" id="featSkillNav" style="display:none;"></nav>
+    <div class="rarity-filter" id="rarityFilter" style="margin-top:9px;">
+      <span class="lbl">Rareza:</span>
+    </div>
+    <div class="rarity-filter" id="rankFilter" style="margin-top:9px;">
+      <span class="lbl">Rango:</span>
+    </div>
+    <div class="char-bar" id="charBar">
+      <span class="lbl">Personaje:</span>
+      <select id="charSelect"></select>
+      <button class="char-btn" id="charAdd" title="Nuevo personaje">+ Nuevo</button>
+      <button class="char-btn" id="charRename" title="Renombrar personaje">Renombrar</button>
+      <button class="char-btn danger" id="charDelete" title="Borrar personaje">Borrar</button>
+    </div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer class="note" id="footerNote">Toca el nombre de un conjuro para ver su descripción completa. Marca ✓ para prepararlo y ✦ para marcarlo como aprendido — cada personaje guarda sus propias listas en este dispositivo.</footer>
+
+<script>
+(function(){
+  var SPELLS = [];
+  var FOCUS_DATA = {spells: [], classes: []};
+  var FOCUS_SPELLS = [];
+  var CLASSES = [];
+  var RITUALS = [];
+  var FEATS = [];
+  var mainTab = "spells"; // "spells" | "focus" | "rituals"
+  var gameMode = "pf"; // "pf" | "sf"
+
+  var SCHOOLS = [
+    {key:"Arcano", label:"Arcanos", tagline:"El poder moldeado por el estudio, la lógica y la fuerza de voluntad.", color:"--arcano", soft:"--arcano-soft", glyph:"A"},
+    {key:"Divino", label:"Divinos", tagline:"El poder concedido por los dioses y las fuerzas cósmicas.", color:"--divino", soft:"--divino-soft", glyph:"D"},
+    {key:"Ocultista", label:"Ocultistas", tagline:"El poder extraído de misterios, secretos y la mente.", color:"--ocultista", soft:"--ocultista-soft", glyph:"O"},
+    {key:"Primigenio", label:"Primigenios", tagline:"El poder de la naturaleza cruda, salvaje e instintiva.", color:"--primigenio", soft:"--primigenio-soft", glyph:"P"}
+  ];
+
+  var RANK_NAMES = {
+    0:"Trucos", 1:"1.er rango", 2:"2.º rango", 3:"3.er rango", 4:"4.º rango",
+    5:"5.º rango", 6:"6.º rango", 7:"7.º rango", 8:"8.º rango", 9:"9.º rango", 10:"10.º rango"
+  };
+
+  // ---- Persistencia (localStorage con respaldo en memoria) ----
+  var memoryStore = {};
+  var STORAGE_KEY = "pf2e-grimorio-preparados";
+  function storageAvailable(){
+    try{
+      var t="__t__"; localStorage.setItem(t,t); localStorage.removeItem(t);
+      return true;
+    }catch(e){ return false; }
+  }
+  var hasLS = storageAvailable();
+
+  function loadJSON(key, fallback){
+    try{
+      var raw = hasLS ? localStorage.getItem(key) : memoryStore[key];
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, obj){
+    var raw = JSON.stringify(obj);
+    try{
+      if(hasLS){ localStorage.setItem(key, raw); }
+      else { memoryStore[key] = raw; }
+    }catch(e){ memoryStore[key] = raw; }
+  }
+
+  var CHAR_LIST_KEY = "pf2e-grimorio-personajes";
+  var CHAR_ACTIVE_KEY = "pf2e-grimorio-personaje-activo";
+  function charStorageKey(name){ return "pf2e-grimorio-preparados::" + name; }
+  function charStorageKeyKnown(name){ return "pf2e-grimorio-conocidos::" + name; }
+
+  function loadCharacters(){
+    var list = loadJSON(CHAR_LIST_KEY, null);
+    if(list && list.length) return list;
+    // Migracion: si habia datos del formato antiguo (una sola lista), los movemos a "Personaje 1"
+    var legacy = loadJSON(STORAGE_KEY, null);
+    var defaultName = "Personaje 1";
+    if(legacy && Object.keys(legacy).length){
+      saveJSON(charStorageKey(defaultName), legacy);
+    }
+    saveJSON(CHAR_LIST_KEY, [defaultName]);
+    return [defaultName];
+  }
+
+  var characters = loadCharacters();
+  var activeCharacter = loadJSON(CHAR_ACTIVE_KEY, null);
+  if(!activeCharacter || characters.indexOf(activeCharacter) === -1) activeCharacter = characters[0];
+
+  function loadPrepared(){
+    return loadJSON(charStorageKey(activeCharacter), {});
+  }
+  function savePrepared(obj){
+    saveJSON(charStorageKey(activeCharacter), obj);
+  }
+  function loadKnown(){
+    return loadJSON(charStorageKeyKnown(activeCharacter), {});
+  }
+  function saveKnown(obj){
+    saveJSON(charStorageKeyKnown(activeCharacter), obj);
+  }
+
+  function renderCharSelect(){
+    var sel = document.getElementById('charSelect');
+    sel.innerHTML = '';
+    characters.forEach(function(name){
+      var opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      if(name === activeCharacter) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+  renderCharSelect();
+
+  document.getElementById('charSelect').addEventListener('change', function(e){
+    activeCharacter = e.target.value;
+    saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
+    prepared = loadPrepared();
+    known = loadKnown();
+    updatePrepCount();
+    updateKnownCount();
+    render();
+  });
+
+  document.getElementById('charAdd').addEventListener('click', function(){
+    var name = prompt('Nombre del nuevo personaje:');
+    if(!name) return;
+    name = name.trim();
+    if(!name) return;
+    if(characters.indexOf(name) !== -1){
+      alert('Ya existe un personaje con ese nombre.');
+      return;
+    }
+    characters.push(name);
+    saveJSON(CHAR_LIST_KEY, characters);
+    activeCharacter = name;
+    saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
+    renderCharSelect();
+    prepared = loadPrepared();
+    known = loadKnown();
+    updatePrepCount();
+    updateKnownCount();
+    render();
+  });
+
+  document.getElementById('charRename').addEventListener('click', function(){
+    var name = prompt('Nuevo nombre para "' + activeCharacter + '":', activeCharacter);
+    if(!name) return;
+    name = name.trim();
+    if(!name || name === activeCharacter) return;
+    if(characters.indexOf(name) !== -1){
+      alert('Ya existe un personaje con ese nombre.');
+      return;
+    }
+    var data = loadPrepared();
+    saveJSON(charStorageKey(name), data);
+    try{ if(hasLS) localStorage.removeItem(charStorageKey(activeCharacter)); }catch(e){}
+    var dataKnown = loadKnown();
+    saveJSON(charStorageKeyKnown(name), dataKnown);
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
+    characters[characters.indexOf(activeCharacter)] = name;
+    saveJSON(CHAR_LIST_KEY, characters);
+    activeCharacter = name;
+    saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
+    renderCharSelect();
+  });
+
+  document.getElementById('charDelete').addEventListener('click', function(){
+    if(characters.length <= 1){
+      alert('Tiene que quedar al menos un personaje.');
+      return;
+    }
+    if(!confirm('¿Borrar a "' + activeCharacter + '" y su lista de preparados y aprendidos? Esta acción no se puede deshacer.')) return;
+    try{ if(hasLS) localStorage.removeItem(charStorageKey(activeCharacter)); }catch(e){}
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
+    characters.splice(characters.indexOf(activeCharacter), 1);
+    saveJSON(CHAR_LIST_KEY, characters);
+    activeCharacter = characters[0];
+    saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
+    renderCharSelect();
+    prepared = loadPrepared();
+    known = loadKnown();
+    updatePrepCount();
+    updateKnownCount();
+    render();
+  });
+
+  var prepared = loadPrepared();
+  var known = loadKnown();
+  var expanded = {};
+  var currentSchool = "Arcano";
+  var currentClass = null;
+  var showOnlyPrepared = false;
+  var showOnlyKnown = false;
+  var query = "";
+  var RARITIES = ["Común","Poco común","Raro"];
+  var activeRarities = {"Común":true, "Poco común":true, "Raro":true};
+
+  var rarityBar = document.getElementById('rarityFilter');
+  RARITIES.forEach(function(r){
+    var b = document.createElement('button');
+    b.className = 'rarity-chip';
+    b.textContent = r;
+    b.setAttribute('aria-pressed', 'true');
+    b.addEventListener('click', function(){
+      activeRarities[r] = !activeRarities[r];
+      b.setAttribute('aria-pressed', activeRarities[r] ? 'true' : 'false');
+      render();
+    });
+    rarityBar.appendChild(b);
+  });
+
+  var RANK_LABELS_SHORT = ["Truco","1º","2º","3º","4º","5º","6º","7º","8º","9º","10º"];
+  var activeRanks = {};
+  for(var _r=0; _r<=10; _r++) activeRanks[_r] = true;
+
+  var rankBar = document.getElementById('rankFilter');
+  RANK_LABELS_SHORT.forEach(function(label, r){
+    var b = document.createElement('button');
+    b.className = 'rarity-chip';
+    b.textContent = label;
+    b.setAttribute('aria-pressed', 'true');
+    b.addEventListener('click', function(){
+      activeRanks[r] = !activeRanks[r];
+      b.setAttribute('aria-pressed', activeRanks[r] ? 'true' : 'false');
+      render();
+    });
+    rankBar.appendChild(b);
+  });
+  document.getElementById('rankFilter').insertAdjacentHTML('beforeend',
+    '<button class="rarity-chip" id="rankAllBtn" style="margin-left:6px;">Todos</button><button class="rarity-chip" id="rankNoneBtn">Ninguno</button>');
+  document.getElementById('rankAllBtn').addEventListener('click', function(){
+    for(var r=0; r<=10; r++){ activeRanks[r] = true; }
+    Array.prototype.forEach.call(rankBar.querySelectorAll('.rarity-chip'), function(el, i){ if(i<11) el.setAttribute('aria-pressed','true'); });
+    render();
+  });
+  document.getElementById('rankNoneBtn').addEventListener('click', function(){
+    for(var r=0; r<=10; r++){ activeRanks[r] = false; }
+    Array.prototype.forEach.call(rankBar.querySelectorAll('.rarity-chip'), function(el, i){ if(i<11) el.setAttribute('aria-pressed','false'); });
+    render();
+  });
+
+  // ---- Selector de juego (Pathfinder / Starfinder) ----
+  var gameToggleEl = document.getElementById('gameToggle');
+  var brandSubEl = document.getElementById('brandSub');
+  Array.prototype.forEach.call(gameToggleEl.children, function(btn){
+    btn.addEventListener('click', function(){
+      gameMode = btn.dataset.game;
+      Array.prototype.forEach.call(gameToggleEl.children, function(c){c.classList.toggle('active', c===btn);});
+      document.body.classList.toggle('theme-sf', gameMode === 'sf');
+      var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if(themeColorMeta) themeColorMeta.setAttribute('content', gameMode === 'sf' ? '#081a2e' : '#1E3428');
+      brandSubEl.textContent = gameMode === 'sf' ? 'Listas de conjuros · Starfinder 2.ª ed.' : 'Listas de conjuros · Pathfinder 2.ª ed.';
+      sfOnlyToggle.style.display = (gameMode === 'sf') ? '' : 'none';
+      if(gameMode !== 'sf'){
+        showOnlySF = false;
+        sfOnlyToggle.setAttribute('aria-pressed', 'false');
+        sfOnlyToggle.textContent = '☆ Solo Starfinder';
+      }
+      renderClassNav();
+      render();
+    });
+  });
+
+  // ---- Pestañas principales ----
+  var mainTabsEl = document.getElementById('mainTabs');
+  Array.prototype.forEach.call(mainTabsEl.children, function(btn){
+    btn.addEventListener('click', function(){
+      mainTab = btn.dataset.tab;
+      Array.prototype.forEach.call(mainTabsEl.children, function(c){c.classList.toggle('active', c===btn);});
+      document.getElementById('schoolNav').style.display = (mainTab==='spells') ? '' : 'none';
+      document.getElementById('classNav').style.display = (mainTab==='focus') ? '' : 'none';
+      document.getElementById('featNav').style.display = (mainTab==='feats') ? '' : 'none';
+      document.getElementById('featSkillNav').style.display = (mainTab==='feats' && featGroup==='skill') ? '' : 'none';
+      document.getElementById('rarityFilter').style.display = (mainTab==='focus' || mainTab==='feats') ? 'none' : '';
+      document.getElementById('rankFilter').style.display = (mainTab==='feats') ? 'none' : '';
+      document.getElementById('knownToggle').style.display = (mainTab==='feats') ? 'none' : '';
+      document.getElementById('knownCount').style.display = (mainTab==='feats') ? 'none' : '';
+      prepToggle.textContent = (mainTab==='feats') ? (showOnlyPrepared ? '★ Mostrando elegidas' : '☆ Solo elegidas') : (showOnlyPrepared ? '★ Mostrando preparados' : '☆ Solo preparados');
+      updatePrepCount();
+      document.getElementById('search').placeholder = (mainTab==='focus') ? 'Buscar conjuro de foco por nombre o efecto…' : (mainTab==='rituals' ? 'Buscar ritual por nombre o efecto…' : (mainTab==='feats' ? 'Buscar dote por nombre o efecto…' : 'Buscar conjuro por nombre o efecto…'));
+      render();
+    });
+  });
+
+  // ---- Construir nav de grupos de dotes (Ancestria/Habilidad/Clase) ----
+  var featGroup = 'skill';
+  var currentFeatSkill = null;
+  var FEAT_GROUPS = [
+    {key:'ancestry', label:'Ascendencia'},
+    {key:'skill', label:'Habilidad'},
+    {key:'class', label:'Clase'}
+  ];
+  var featNav = document.getElementById('featNav');
+  FEAT_GROUPS.forEach(function(g){
+    var b = document.createElement('button');
+    b.textContent = g.label;
+    b.dataset.key = g.key;
+    if(g.key === featGroup) b.classList.add('active');
+    b.addEventListener('click', function(){
+      featGroup = g.key;
+      Array.prototype.forEach.call(featNav.children, function(el){el.classList.toggle('active', el.dataset.key===g.key);});
+      document.getElementById('featSkillNav').style.display = (featGroup==='skill') ? '' : 'none';
+      render();
+    });
+    featNav.appendChild(b);
+  });
+
+  var featSkillNav = document.getElementById('featSkillNav');
+  function renderFeatSkillNav(){
+    featSkillNav.innerHTML = '';
+    var cats = [];
+    FEATS.forEach(function(ft){ if(ft.group==='skill' && cats.indexOf(ft.category)===-1) cats.push(ft.category); });
+    cats.sort();
+    if(!currentFeatSkill || cats.indexOf(currentFeatSkill)===-1) currentFeatSkill = cats[0] || null;
+    cats.forEach(function(cat){
+      var b = document.createElement('button');
+      b.textContent = FEAT_CAT_LABELS[cat] || cat;
+      b.dataset.key = cat;
+      if(cat === currentFeatSkill) b.classList.add('active');
+      b.addEventListener('click', function(){
+        currentFeatSkill = cat;
+        Array.prototype.forEach.call(featSkillNav.children, function(el){el.classList.toggle('active', el.dataset.key===cat);});
+        render();
+      });
+      featSkillNav.appendChild(b);
+    });
+  }
+  var FEAT_CAT_LABELS = {
+    'Acrobacias':'Acrobacias','Arcanos':'Arcanos','Atletismo':'Atletismo','Artesania':'Artesanía',
+    'Engano':'Engaño','Diplomacia':'Diplomacia','Intimidacion':'Intimidación','Saber':'Saber',
+    'Medicina':'Medicina','Naturaleza':'Naturaleza','Ocultismo':'Ocultismo','Percepcion':'Percepción',
+    'Interpretacion':'Interpretación','Religion':'Religión','Sociedad':'Sociedad','Sigilo':'Sigilo',
+    'Supervivencia':'Supervivencia','Latrocinio':'Latrocinio','General':'General'
+  };
+
+  // ---- Construir nav de clases (conjuros de foco) ----
+  var classNav = document.getElementById('classNav');
+  function visibleClasses(){
+    return CLASSES.filter(function(c){ return gameMode === 'sf' || c.game !== 'sf'; });
+  }
+  function renderClassNav(){
+    classNav.innerHTML = '';
+    var vis = visibleClasses();
+    if(vis.length && vis.indexOf(vis.filter(function(c){return c.key===currentClass;})[0]) === -1){
+      currentClass = vis[0].key;
+    }
+    vis.forEach(function(c){
+      var b = document.createElement('button');
+      b.innerHTML = '<span class="dot" style="background:var('+c.color+')"></span>' + c.label;
+      b.dataset.key = c.key;
+      if(c.key === currentClass) b.classList.add('active');
+      b.addEventListener('click', function(){
+        currentClass = c.key;
+        Array.prototype.forEach.call(classNav.children, function(el){el.classList.toggle('active', el.dataset.key===c.key);});
+        render();
+      });
+      classNav.appendChild(b);
+    });
+    if(vis.length && !currentClass) currentClass = vis[0].key;
+  }
+  renderClassNav();
+
+  // ---- Construir nav de escuelas ----
+  var nav = document.getElementById('schoolNav');
+  SCHOOLS.forEach(function(s){
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="dot" style="background:var('+s.color+')"></span>' + s.label;
+    b.dataset.key = s.key;
+    if(s.key === currentSchool) b.classList.add('active');
+    b.addEventListener('click', function(){
+      currentSchool = s.key;
+      Array.prototype.forEach.call(nav.children, function(c){c.classList.toggle('active', c.dataset.key===s.key);});
+      render();
+    });
+    nav.appendChild(b);
+  });
+
+  document.getElementById('search').addEventListener('input', function(e){
+    query = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  var prepToggle = document.getElementById('prepToggle');
+  prepToggle.addEventListener('click', function(){
+    showOnlyPrepared = !showOnlyPrepared;
+    prepToggle.setAttribute('aria-pressed', showOnlyPrepared ? 'true':'false');
+    prepToggle.textContent = (mainTab==='feats') ? (showOnlyPrepared ? '★ Mostrando elegidas' : '☆ Solo elegidas') : (showOnlyPrepared ? '★ Mostrando preparados' : '☆ Solo preparados');
+    render();
+  });
+
+  var knownToggle = document.getElementById('knownToggle');
+  knownToggle.addEventListener('click', function(){
+    showOnlyKnown = !showOnlyKnown;
+    knownToggle.setAttribute('aria-pressed', showOnlyKnown ? 'true':'false');
+    knownToggle.textContent = showOnlyKnown ? '✦ Mostrando aprendidos' : '✦ Solo aprendidos';
+    render();
+  });
+
+  var showOnlySF = false;
+  var sfOnlyToggle = document.getElementById('sfOnlyToggle');
+  sfOnlyToggle.addEventListener('click', function(){
+    showOnlySF = !showOnlySF;
+    sfOnlyToggle.setAttribute('aria-pressed', showOnlySF ? 'true':'false');
+    sfOnlyToggle.textContent = showOnlySF ? '★ Mostrando solo Starfinder' : '☆ Solo Starfinder';
+    render();
+  });
+
+  function updatePrepCount(){
+    var n = Object.keys(prepared).filter(function(k){return prepared[k];}).length;
+    var word = (mainTab==='feats') ? ('elegida' + (n===1?'':'s')) : ('preparado' + (n===1?'':'s'));
+    document.getElementById('prepCount').innerHTML = '<b>'+n+'</b> ' + word;
+  }
+  function updateKnownCount(){
+    var n = Object.keys(known).filter(function(k){return known[k];}).length;
+    document.getElementById('knownCount').innerHTML = '<b>'+n+'</b> aprendido' + (n===1?'':'s');
+  }
+
+  function toggleSpell(id){
+    prepared[id] = !prepared[id];
+    if(!prepared[id]) delete prepared[id];
+    savePrepared(prepared);
+    updatePrepCount();
+  }
+  function toggleKnownSpell(id){
+    known[id] = !known[id];
+    if(!known[id]) delete known[id];
+    saveKnown(known);
+    updateKnownCount();
+  }
+
+  function matchesQuery(sp){
+    if(!query) return true;
+    return sp.name.toLowerCase().indexOf(query) !== -1 || sp.desc.toLowerCase().indexOf(query) !== -1;
+  }
+
+  function render(){
+    if(mainTab === 'focus') renderFocus();
+    else if(mainTab === 'rituals') renderRituals();
+    else if(mainTab === 'feats') renderFeats();
+    else renderSpells();
+  }
+
+  function renderFocus(){
+    var main = document.getElementById('main');
+    main.innerHTML = '';
+
+    if(visibleClasses().length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = 'Todavía no se han añadido conjuros de foco. Pídele a Claude que los añada pegando o subiendo el material de origen.';
+      main.appendChild(empty);
+      return;
+    }
+
+    var vis = visibleClasses();
+    var classDef = vis.filter(function(c){return c.key===currentClass;})[0] || vis[0];
+    document.documentElement.style.setProperty('--accent', 'var('+classDef.color+')');
+    document.documentElement.style.setProperty('--accent-soft', 'var('+classDef.soft+')');
+
+    var banner = document.createElement('div');
+    banner.className = 'school-banner';
+    banner.innerHTML = '<div class="icon">'+classDef.glyph+'</div><div><h2>'+classDef.label+'</h2><p>'+(classDef.tagline||'')+'</p></div>';
+    main.appendChild(banner);
+
+    var pool = FOCUS_SPELLS.filter(function(sp){ return sp.classKey === classDef.key; })
+                            .filter(function(sp){ return gameMode === 'sf' || sp.game !== 'sf'; })
+                            .filter(function(sp){ return !showOnlySF || sp.game === 'sf'; })
+                            .filter(function(sp){ return activeRanks[Math.min(sp.rank||0, 10)]; })
+                            .filter(matchesQuery)
+                            .filter(function(sp){ return !showOnlyPrepared || prepared[sp.id]; })
+                            .filter(function(sp){ return !showOnlyKnown || known[sp.id]; })
+                            .sort(function(a,b){ return (a.group||'').localeCompare(b.group||'','es') || a.name.localeCompare(b.name,'es'); });
+
+    if(pool.length === 0){
+      var empty2 = document.createElement('div');
+      empty2.className = 'empty-msg';
+      empty2.textContent = query ? 'Ningún conjuro de foco coincide con “'+query+'”.' : 'Todavía no hay conjuros de foco cargados para esta clase.';
+      main.appendChild(empty2);
+      return;
+    }
+
+    var groups = {};
+    pool.forEach(function(sp){
+      var g = sp.group || 'General';
+      if(!groups[g]) groups[g] = [];
+      groups[g].push(sp);
+    });
+
+    Object.keys(groups).sort(function(a,b){return a.localeCompare(b,'es');}).forEach(function(g){
+      var section = document.createElement('div');
+      section.className = 'rank-section';
+      var title = document.createElement('div');
+      title.className = 'rank-title';
+      title.innerHTML = escapeHtml(g) + ' <span class="count">('+groups[g].length+')</span>';
+      section.appendChild(title);
+
+      var ul = document.createElement('ul');
+      ul.className = 'spell-list';
+
+      groups[g].forEach(function(sp){
+        var li = document.createElement('li');
+        li.className = 'spell-row' + (prepared[sp.id] ? ' prepared' : '') + (known[sp.id] ? ' known' : '') + (expanded[sp.id] ? ' expanded' : '');
+        li.innerHTML =
+          '<span class="chk-wrap"><span class="chk" data-role="chk" title="Preparado"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="chk-known" data-role="chkKnown" title="Aprendido"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></span>' +
+          '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>' +
+          '<span class="spell-text"><span class="name">'+escapeHtml(sp.name)+'</span><span class="trait-pill" style="margin-right:6px;">'+escapeHtml(sp.rankLabel||('Foco '+(sp.rank||1)))+'</span><span class="desc">'+escapeHtml(sp.desc)+'</span></span>';
+        var chk = li.querySelector('[data-role="chk"]');
+        chk.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleSpell(sp.id);
+          li.classList.toggle('prepared', !!prepared[sp.id]);
+        });
+        var chkKnown = li.querySelector('[data-role="chkKnown"]');
+        chkKnown.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleKnownSpell(sp.id);
+          li.classList.toggle('known', !!known[sp.id]);
+        });
+        li.addEventListener('click', function(){
+          expanded[sp.id] = !expanded[sp.id];
+          render();
+        });
+        ul.appendChild(li);
+        if(expanded[sp.id]){
+          var detail = document.createElement('div');
+          detail.className = 'spell-detail';
+          detail.innerHTML = buildDetailHtml(sp);
+          ul.appendChild(detail);
+        }
+      });
+
+      section.appendChild(ul);
+      main.appendChild(section);
+    });
+  }
+
+  function renderRituals(){
+    var main = document.getElementById('main');
+    main.innerHTML = '';
+
+    document.documentElement.style.setProperty('--accent', '#7a5fb0');
+    document.documentElement.style.setProperty('--accent-soft', 'rgba(122,95,176,0.12)');
+
+    var banner = document.createElement('div');
+    banner.className = 'school-banner';
+    banner.innerHTML = '<div class="icon">R</div><div><h2>Rituales</h2><p>Magia lenta y poderosa que cualquiera con la habilidad adecuada puede intentar, sin necesidad de ser lanzador de conjuros.</p></div>';
+    main.appendChild(banner);
+
+    var pool = RITUALS.filter(matchesQuery)
+                       .filter(function(sp){ return !showOnlyPrepared || prepared[sp.id]; })
+                       .filter(function(sp){ return !showOnlyKnown || known[sp.id]; })
+                       .filter(function(sp){ return activeRarities[sp.rarity || 'Común']; });
+
+    var anyResult = false;
+
+    for(var r=1; r<=10; r++){
+      if(!activeRanks[r]) continue;
+      var atRank = pool.filter(function(sp){return sp.rank===r;})
+                        .sort(function(a,b){ return a.name.localeCompare(b.name,'es'); });
+      if(atRank.length === 0) continue;
+      anyResult = true;
+
+      var section = document.createElement('div');
+      section.className = 'rank-section';
+      var title = document.createElement('div');
+      title.className = 'rank-title';
+      title.innerHTML = 'Rituales de ' + RANK_NAMES[r] + ' <span class="count">('+atRank.length+')</span>';
+      section.appendChild(title);
+
+      var ul = document.createElement('ul');
+      ul.className = 'spell-list';
+
+      atRank.forEach(function(sp){
+        var li = document.createElement('li');
+        li.className = 'spell-row' + (prepared[sp.id] ? ' prepared' : '') + (known[sp.id] ? ' known' : '') + (expanded[sp.id] ? ' expanded' : '');
+        var rarityHtml = '';
+        if(sp.rarity === 'Poco común') rarityHtml = '<span class="rarity-badge uncommon">Poco común</span>';
+        else if(sp.rarity === 'Raro') rarityHtml = '<span class="rarity-badge rare">Raro</span>';
+        var sourceHtml = '';
+        if(sp.source && sp.source !== 'Player Core' && sp.source !== 'Player Core 2') sourceHtml = '<span class="source-badge ap" title="'+escapeHtml(sp.source)+'">'+escapeHtml(sp.source==='Player Core 2'?'PC2':'AP')+'</span>';
+
+        li.innerHTML =
+          '<span class="chk-wrap"><span class="chk" data-role="chk" title="Preparado"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="chk-known" data-role="chkKnown" title="Aprendido"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></span>' +
+          '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>' +
+          '<span class="spell-text"><span class="name">'+escapeHtml(sp.name)+'</span><span class="trait-pill" style="margin-right:6px;">'+escapeHtml(sp.primaryCheck||'')+'</span>'+sourceHtml+rarityHtml+'<span class="desc">'+escapeHtml(sp.desc)+'</span></span>';
+
+        var chk = li.querySelector('[data-role="chk"]');
+        chk.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleSpell(sp.id);
+          li.classList.toggle('prepared', !!prepared[sp.id]);
+        });
+        var chkKnown = li.querySelector('[data-role="chkKnown"]');
+        chkKnown.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleKnownSpell(sp.id);
+          li.classList.toggle('known', !!known[sp.id]);
+        });
+        li.addEventListener('click', function(){
+          expanded[sp.id] = !expanded[sp.id];
+          render();
+        });
+        ul.appendChild(li);
+        if(expanded[sp.id]){
+          var detail = document.createElement('div');
+          detail.className = 'spell-detail';
+          detail.innerHTML = buildRitualDetailHtml(sp);
+          ul.appendChild(detail);
+        }
+      });
+
+      section.appendChild(ul);
+      main.appendChild(section);
+    }
+
+    if(!anyResult){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = query ? 'Ningún ritual coincide con “'+query+'”.' : 'No hay rituales que coincidan con los filtros actuales.';
+      main.appendChild(empty);
+    }
+  }
+
+  function buildRitualDetailHtml(sp){
+    var fullText = sp.fulldesc || sp.desc;
+    var html = '';
+    var traits = (sp.traits || []).slice();
+    var rankLabel = 'Ritual ' + sp.rank;
+    traits.push(rankLabel);
+    html += '<div class="detail-traits">' + traits.filter(Boolean).map(function(t){
+      return '<span class="trait-pill">'+escapeHtml(t)+'</span>';
+    }).join('') + '</div>';
+
+    var stats = '';
+    stats += '<dt>Lanzamiento</dt><dd>'+escapeHtml(sp.cast || '')+'</dd>';
+    stats += '<dt>Comprobación principal</dt><dd>'+escapeHtml(sp.primaryCheck || '')+'</dd>';
+    if(sp.secondaryCasters) stats += '<dt>Lanzadores secundarios</dt><dd>'+escapeHtml(String(sp.secondaryCasters))+(sp.secondaryChecks ? ' — '+escapeHtml(sp.secondaryChecks) : '')+'</dd>';
+    if(sp.cost) stats += '<dt>Coste</dt><dd>'+escapeHtml(sp.cost)+'</dd>';
+    if(sp.range) stats += '<dt>Rango</dt><dd>'+escapeHtml(sp.range)+'</dd>';
+    if(sp.area) stats += '<dt>Área</dt><dd>'+escapeHtml(sp.area)+'</dd>';
+    if(sp.target) stats += '<dt>Objetivo</dt><dd>'+escapeHtml(sp.target)+'</dd>';
+    if(sp.duration) stats += '<dt>Duración</dt><dd>'+escapeHtml(sp.duration)+'</dd>';
+    if(stats) html += '<dl class="detail-stats">'+stats+'</dl>';
+
+    html += '<div class="detail-desc">'+formatResultText(fullText)+'</div>';
+
+    if(sp.heightened){
+      html += '<div class="detail-heightened"><span class="label">Potenciado</span>'+formatResultText(sp.heightened)+'</div>';
+    }
+    return html;
+  }
+
+  function renderFeats(){
+    var main = document.getElementById('main');
+    main.innerHTML = '';
+
+    document.documentElement.style.setProperty('--accent', '#1f7a5f');
+    document.documentElement.style.setProperty('--accent-soft', 'rgba(31,122,95,0.12)');
+
+    var groupLabel = FEAT_GROUPS.filter(function(g){return g.key===featGroup;})[0];
+    var banner = document.createElement('div');
+    banner.className = 'school-banner';
+    banner.innerHTML = '<div class="icon">D</div><div><h2>Dotes de '+ (groupLabel?groupLabel.label:'') +'</h2><p>Capacidades especiales que personalizan a tu personaje más allá de su clase.</p></div>';
+    main.appendChild(banner);
+
+    var pool = FEATS.filter(function(ft){ return ft.group === featGroup; });
+    if(featGroup === 'skill' && currentFeatSkill){
+      pool = pool.filter(function(ft){ return ft.category === currentFeatSkill; });
+    }
+    pool = pool.filter(matchesQuery)
+                .filter(function(ft){ return !showOnlyPrepared || prepared[ft.id]; });
+
+    if(pool.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = query ? 'Ninguna dote coincide con “'+query+'”.' : 'Aún no hay dotes cargadas en esta categoría.';
+      main.appendChild(empty);
+      return;
+    }
+
+    var byLevel = {};
+    pool.forEach(function(ft){
+      var lv = ft.level || 0;
+      if(!byLevel[lv]) byLevel[lv] = [];
+      byLevel[lv].push(ft);
+    });
+    var levels = Object.keys(byLevel).map(Number).sort(function(a,b){return a-b;});
+
+    levels.forEach(function(lv){
+      var atLevel = byLevel[lv].sort(function(a,b){ return a.name.localeCompare(b.name,'es'); });
+      var section = document.createElement('div');
+      section.className = 'rank-section';
+      var title = document.createElement('div');
+      title.className = 'rank-title';
+      title.innerHTML = 'Dotes de nivel ' + lv + ' <span class="count">('+atLevel.length+')</span>';
+      section.appendChild(title);
+
+      var ul = document.createElement('ul');
+      ul.className = 'spell-list';
+
+      atLevel.forEach(function(ft){
+        var li = document.createElement('li');
+        li.className = 'spell-row' + (prepared[ft.id] ? ' prepared' : '') + (expanded[ft.id] ? ' expanded' : '');
+        var rarityHtml = '';
+        if(ft.rarity === 'Poco común') rarityHtml = '<span class="rarity-badge uncommon">Poco común</span>';
+        else if(ft.rarity === 'Raro') rarityHtml = '<span class="rarity-badge rare">Raro</span>';
+
+        li.innerHTML =
+          '<span class="chk-wrap"><span class="chk" data-role="chk" title="Elegida"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></span>' +
+          '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>' +
+          '<span class="spell-text"><span class="name">'+escapeHtml(ft.name)+'</span>'+rarityHtml+'<span class="desc">'+escapeHtml(ft.desc)+'</span></span>';
+
+        var chk = li.querySelector('[data-role="chk"]');
+        chk.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleSpell(ft.id);
+          li.classList.toggle('prepared', !!prepared[ft.id]);
+        });
+        li.addEventListener('click', function(){
+          expanded[ft.id] = !expanded[ft.id];
+          render();
+        });
+        ul.appendChild(li);
+        if(expanded[ft.id]){
+          var detail = document.createElement('div');
+          detail.className = 'spell-detail';
+          detail.innerHTML = buildFeatDetailHtml(ft);
+          ul.appendChild(detail);
+        }
+      });
+
+      section.appendChild(ul);
+      main.appendChild(section);
+    });
+  }
+
+  function buildFeatDetailHtml(ft){
+    var html = '';
+    var traits = (ft.traits || []).slice();
+    html += '<div class="detail-traits">' + traits.filter(Boolean).map(function(t){
+      return '<span class="trait-pill">'+escapeHtml(t)+'</span>';
+    }).join('') + '</div>';
+
+    var stats = '';
+    if(ft.actionType) stats += '<dt>Acción</dt><dd>'+escapeHtml(ACTION_LABELS[ft.actionType] || ft.actionType)+'</dd>';
+    if(ft.prereq) stats += '<dt>Prerrequisitos</dt><dd>'+escapeHtml(ft.prereq)+'</dd>';
+    if(ft.source) stats += '<dt>Fuente</dt><dd>'+escapeHtml(ft.source)+'</dd>';
+    if(stats) html += '<dl class="detail-stats">'+stats+'</dl>';
+
+    html += '<div class="detail-desc">'+formatResultText(ft.fulldesc || ft.desc)+'</div>';
+    return html;
+  }
+  var ACTION_LABELS = {
+    'passive':'Pasiva', 'free':'Acción gratuita', 'reaction':'Reacción', 'action':'Activa'
+  };
+
+  function renderSpells(){
+    var main = document.getElementById('main');
+    main.innerHTML = '';
+
+    var schoolDef = SCHOOLS.filter(function(s){return s.key===currentSchool;})[0];
+    document.documentElement.style.setProperty('--accent', 'var('+schoolDef.color+')');
+    document.documentElement.style.setProperty('--accent-soft', 'var('+schoolDef.soft+')');
+
+    var banner = document.createElement('div');
+    banner.className = 'school-banner';
+    banner.innerHTML = '<div class="icon">'+schoolDef.glyph+'</div><div><h2>Conjuros '+schoolDef.label+'</h2><p>'+schoolDef.tagline+'</p></div>';
+    main.appendChild(banner);
+
+    var pool = SPELLS.filter(function(sp){ return sp.school === currentSchool; })
+                      .filter(function(sp){ return gameMode === 'sf' || sp.source !== 'Starfinder'; })
+                      .filter(function(sp){ return !showOnlySF || sp.source === 'Starfinder'; });
+
+    if(gameMode === 'sf'){
+      var sfNames = {};
+      pool.forEach(function(sp){ if(sp.source === 'Starfinder') sfNames[sp.name] = true; });
+      pool = pool.filter(function(sp){ return sp.source === 'Starfinder' || !sfNames[sp.name]; });
+    }
+
+    var anyResult = false;
+
+    for(var r=0; r<=10; r++){
+      if(!activeRanks[r]) continue;
+      var atRank = pool.filter(function(sp){return sp.rank===r;})
+                        .filter(matchesQuery)
+                        .filter(function(sp){ return !showOnlyPrepared || prepared[sp.id]; })
+                        .filter(function(sp){ return !showOnlyKnown || known[sp.id]; })
+                        .filter(function(sp){ return activeRarities[sp.rarity || 'Común']; })
+                        .sort(function(a,b){ return a.name.localeCompare(b.name,'es'); });
+      if(atRank.length === 0) continue;
+      anyResult = true;
+
+      var section = document.createElement('div');
+      section.className = 'rank-section';
+
+      var title = document.createElement('div');
+      title.className = 'rank-title';
+      title.innerHTML = (r===0 ? 'Trucos' : 'Conjuros de ' + RANK_NAMES[r]) + ' <span class="count">('+atRank.length+')</span>';
+      section.appendChild(title);
+
+      var ul = document.createElement('ul');
+      ul.className = 'spell-list';
+
+      atRank.forEach(function(sp){
+        var li = document.createElement('li');
+        li.className = 'spell-row' + (prepared[sp.id] ? ' prepared' : '') + (known[sp.id] ? ' known' : '') + (expanded[sp.id] ? ' expanded' : '');
+        var rarityHtml = '';
+        if(sp.rarity === 'Poco común') rarityHtml = '<span class="rarity-badge uncommon">Poco común</span>';
+        else if(sp.rarity === 'Raro') rarityHtml = '<span class="rarity-badge rare">Raro</span>';
+        var sourceHtml = '';
+        if(sp.source === 'Player Core 2') sourceHtml = '<span class="source-badge">PC2</span>';
+        else if(sp.source === 'Secretos de la Magia') sourceHtml = '<span class="source-badge sm">SdM</span>';
+        else if(sp.source === 'Dark Archive') sourceHtml = '<span class="source-badge da">DA</span>';
+        else if(sp.source === 'Howl of the Wild') sourceHtml = '<span class="source-badge hw">HW</span>';
+        else if(sp.source === 'Rage of Elements') sourceHtml = '<span class="source-badge roe">RoE</span>';
+        else if(sp.source === 'Battlecry!') sourceHtml = '<span class="source-badge bc">BC</span>';
+        else if(sp.source === 'Impossible Magic') sourceHtml = '<span class="source-badge im">IM</span>';
+        else if(sp.source === 'Starfinder') sourceHtml = '<span class="source-badge sf">SF</span>';
+        else if(sp.source === 'Divine Mysteries') sourceHtml = '<span class="source-badge dm">DivM</span>';
+        else if(sp.source === 'War of Immortals') sourceHtml = '<span class="source-badge da">WoI</span>';
+        else if(sp.source === 'Rival Academies') sourceHtml = '<span class="source-badge ra">RA</span>';
+        else if(sp.source === 'Shining Kingdoms') sourceHtml = '<span class="source-badge sk">SK</span>';
+        else if(sp.source === 'Firebrands') sourceHtml = '<span class="source-badge fb">FB</span>';
+        else if(sp.source === 'Impossible Lands') sourceHtml = '<span class="source-badge il">IL</span>';
+        else if(sp.source === 'Knights of Lastwall') sourceHtml = '<span class="source-badge kl">KoL</span>';
+        else if(sp.source === 'Season of Ghosts') sourceHtml = '<span class="source-badge sg">SoG</span>';
+        else if(sp.source && sp.source !== 'Starfinder') sourceHtml = '<span class="source-badge ap" title="'+sp.source+'">AP</span>';
+
+        li.innerHTML =
+          '<span class="chk-wrap"><span class="chk" data-role="chk" title="Preparado"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="chk-known" data-role="chkKnown" title="Aprendido"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></span>' +
+          '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>' +
+          '<span class="spell-text"><span class="name">'+escapeHtml(sp.name)+'</span>'+sourceHtml+rarityHtml+'<span class="desc">'+escapeHtml(sp.desc)+'</span></span>';
+
+        var chk = li.querySelector('[data-role="chk"]');
+        chk.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleSpell(sp.id);
+          li.classList.toggle('prepared', !!prepared[sp.id]);
+        });
+        var chkKnown = li.querySelector('[data-role="chkKnown"]');
+        chkKnown.addEventListener('click', function(e){
+          e.stopPropagation();
+          toggleKnownSpell(sp.id);
+          li.classList.toggle('known', !!known[sp.id]);
+        });
+
+        li.addEventListener('click', function(){
+          expanded[sp.id] = !expanded[sp.id];
+          render();
+        });
+
+        ul.appendChild(li);
+
+        if(expanded[sp.id]){
+          var detail = document.createElement('div');
+          detail.className = 'spell-detail';
+          detail.innerHTML = buildDetailHtml(sp);
+          ul.appendChild(detail);
+        }
+      });
+
+      section.appendChild(ul);
+      main.appendChild(section);
+    }
+
+    if(!anyResult){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = query
+        ? 'Ningún conjuro de esta escuela coincide con “'+query+'”.'
+        : (showOnlyKnown ? 'No tienes conjuros aprendidos en esta escuela todavía.' : 'No tienes conjuros preparados en esta escuela todavía.');
+      main.appendChild(empty);
+    }
+  }
+
+  var RANK_LABEL = {0:"Truco", 1:"Conjuro 1", 2:"Conjuro 2", 3:"Conjuro 3", 4:"Conjuro 4", 5:"Conjuro 5", 6:"Conjuro 6", 7:"Conjuro 7", 8:"Conjuro 8", 9:"Conjuro 9", 10:"Conjuro 10"};
+
+  function buildDetailHtml(sp){
+    var fullText = sp.fulldesc || sp.desc;
+    if(!fullText){
+      return '<p class="detail-note">No hay descripción completa disponible para este conjuro en el documento original.</p>';
+    }
+    var html = '';
+    var traits = (sp.traits || []).slice();
+    if(sp.rankLabel){
+      if(!traits.some(function(t){ return t.toLowerCase() === sp.rankLabel.toLowerCase(); })) traits.push(sp.rankLabel);
+    } else {
+      var rankLabel = RANK_LABEL[sp.rank] || '';
+      if(traits.some(function(t){ return t.toLowerCase() === rankLabel.toLowerCase(); })) rankLabel = '';
+      traits.push(rankLabel);
+    }
+    html += '<div class="detail-traits">' + traits.filter(Boolean).map(function(t){
+      return '<span class="trait-pill">'+escapeHtml(t)+'</span>';
+    }).join('') + '</div>';
+
+    var stats = '';
+    var castText = sp.cast || '2 acciones, somático, verbal';
+    stats += '<dt>Lanzamiento</dt><dd>'+escapeHtml(castText)+'</dd>';
+    if(sp.cast2) stats += '<dt></dt><dd>'+escapeHtml(sp.cast2)+'</dd>';
+    if(sp.range) stats += '<dt>Rango</dt><dd>'+escapeHtml(sp.range)+'</dd>';
+    if(sp.defense) stats += '<dt>Defensa</dt><dd>'+escapeHtml(sp.defense)+'</dd>';
+    if(sp.duration) stats += '<dt>Duración</dt><dd>'+escapeHtml(sp.duration)+'</dd>';
+    if(stats) html += '<dl class="detail-stats">'+stats+'</dl>';
+
+    html += '<div class="detail-desc">'+formatResultText(fullText)+'</div>';
+
+    if(sp.heightened){
+      html += '<div class="detail-heightened"><span class="label">Potenciado</span>'+formatResultText(sp.heightened)+'</div>';
+    }
+    return html;
+  }
+
+  function formatResultText(text){
+    if(!text) return '';
+    var lines = text.split('\n');
+    return lines.map(function(line){
+      var m = line.match(/^(Éxito crítico|Fallo crítico|Éxito|Fallo)\b/);
+      if(m){
+        var label = m[1];
+        var rest = line.slice(label.length);
+        return '<b>'+escapeHtml(label)+'</b>'+escapeHtml(rest);
+      }
+      return escapeHtml(line);
+    }).join('\n');
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  document.getElementById('main').innerHTML = '<p style="text-align:center;padding:40px;opacity:.7;">Cargando conjuros…</p>';
+
+  Promise.all([
+    fetch('spells.json').then(function(r){ return r.json(); }),
+    fetch('focus.json').then(function(r){ return r.json(); }),
+    fetch('rituals.json').then(function(r){ return r.json(); }),
+    fetch('feats.json').then(function(r){ return r.json(); })
+  ]).then(function(results){
+    SPELLS = results[0];
+    FOCUS_DATA = results[1];
+    FOCUS_SPELLS = FOCUS_DATA.spells || [];
+    CLASSES = FOCUS_DATA.classes || [];
+    RITUALS = results[2];
+    FEATS = results[3];
+    renderFeatSkillNav();
+    updatePrepCount();
+    updateKnownCount();
+    render();
+  }).catch(function(err){
+    document.getElementById('main').innerHTML = '<p style="text-align:center;padding:40px;color:#b33;">No se pudieron cargar los datos de conjuros (spells.json / focus.json). Comprueba que están en la misma carpeta que index.html y que la app se sirve por http(s), no abierta directamente como archivo.</p>';
+    console.error('Error cargando datos:', err);
+  });
+
+  // ---- Auto-ocultar cabecera al bajar (solo en pantallas estrechas) ----
+  (function(){
+    var headerEl = document.querySelector('header.top');
+    var lastY = window.scrollY;
+    var isMobile = function(){ return window.matchMedia('(max-width: 640px)').matches; };
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if(!isMobile()){ headerEl.classList.remove('header-hidden'); lastY = window.scrollY; return; }
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        var y = window.scrollY;
+        var goingDown = y > lastY;
+        if(y < 40){
+          headerEl.classList.remove('header-hidden');
+        } else if(goingDown && (y - lastY) > 4){
+          headerEl.classList.add('header-hidden');
+        } else if(!goingDown && (lastY - y) > 4){
+          headerEl.classList.remove('header-hidden');
+        }
+        lastY = y;
+        ticking = false;
+      });
+    }, {passive:true});
+  })();
+})();
+</script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(err){
+        console.warn('No se pudo registrar el service worker:', err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
