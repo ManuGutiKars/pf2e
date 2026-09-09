@@ -835,6 +835,7 @@
         sfOnlyToggle.textContent = '☆ Solo Starfinder';
       }
       renderClassNav();
+      renderFeatSkillNav();
       render();
     });
   });
@@ -887,7 +888,9 @@
   function renderFeatSkillNav(){
     featSkillNav.innerHTML = '';
     var cats = [];
-    FEATS.forEach(function(ft){ if(ft.group==='skill' && cats.indexOf(ft.category)===-1) cats.push(ft.category); });
+    FEATS.forEach(function(ft){
+      if(ft.group==='skill' && (gameMode==='sf' || ft.game!=='sf') && cats.indexOf(ft.category)===-1) cats.push(ft.category);
+    });
     cats.sort();
     if(!currentFeatSkill || cats.indexOf(currentFeatSkill)===-1) currentFeatSkill = cats[0] || null;
     cats.forEach(function(cat){
@@ -908,7 +911,8 @@
     'Engano':'Engaño','Diplomacia':'Diplomacia','Intimidacion':'Intimidación','Saber':'Saber',
     'Medicina':'Medicina','Naturaleza':'Naturaleza','Ocultismo':'Ocultismo','Percepcion':'Percepción',
     'Interpretacion':'Interpretación','Religion':'Religión','Sociedad':'Sociedad','Sigilo':'Sigilo',
-    'Supervivencia':'Supervivencia','Latrocinio':'Latrocinio','General':'General'
+    'Supervivencia':'Supervivencia','Latrocinio':'Latrocinio','General':'General',
+    'Computadoras':'Computadoras','Pilotaje':'Pilotaje'
   };
 
   // ---- Construir nav de clases (conjuros de foco) ----
@@ -1241,7 +1245,8 @@
     banner.innerHTML = '<div class="icon">D</div><div><h2>Dotes de '+ (groupLabel?groupLabel.label:'') +'</h2><p>Capacidades especiales que personalizan a tu personaje más allá de su clase.</p></div>';
     main.appendChild(banner);
 
-    var pool = FEATS.filter(function(ft){ return ft.group === featGroup; });
+    var pool = FEATS.filter(function(ft){ return ft.group === featGroup; })
+                     .filter(function(ft){ return gameMode === 'sf' || ft.game !== 'sf'; });
     if(featGroup === 'skill' && currentFeatSkill){
       pool = pool.filter(function(ft){ return ft.category === currentFeatSkill; });
     }
@@ -1531,6 +1536,7 @@
     CLASSES = FOCUS_DATA.classes || [];
     RITUALS = results[2];
     FEATS = results[3];
+    renderClassNav();
     renderFeatSkillNav();
     updatePrepCount();
     updateKnownCount();
