@@ -1492,6 +1492,15 @@
     if(!text) return '';
     var lines = text.split('\n');
     return lines.map(function(line){
+      // Convierte cualquier **texto** en <b>texto</b> (Requisitos, Desencadenante, Coste, etc.)
+      if(line.indexOf('**') !== -1){
+        var parts = line.split('**');
+        var html = '';
+        for(var i=0; i<parts.length; i++){
+          html += (i % 2 === 1) ? '<b>'+escapeHtml(parts[i])+'</b>' : escapeHtml(parts[i]);
+        }
+        return html;
+      }
       var m = line.match(/^(Éxito crítico|Fallo crítico|Éxito|Fallo)\b/);
       if(m){
         var label = m[1];
