@@ -217,6 +217,17 @@
   nav.schools{
     display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;
   }
+  .nav-section-label{
+    font-family:'Cinzel', serif;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    opacity:.75;
+    margin-top:12px;
+    margin-bottom:-4px;
+  }
+  .nav-section-label:first-of-type{ margin-top:12px; }
   nav.schools button{
     font-family:'Cinzel', serif;
     font-size:13.5px;
@@ -573,7 +584,10 @@
     <nav class="schools" id="schoolNav"></nav>
     <nav class="schools" id="classNav" style="display:none;"></nav>
     <nav class="schools" id="featNav" style="display:none;"></nav>
+    <div class="nav-section-label" id="featSkillNavLabel" style="display:none;">Ascendencias</div>
     <nav class="schools" id="featSkillNav" style="display:none;"></nav>
+    <div class="nav-section-label" id="featHeritageNavLabel" style="display:none;">Herencias versátiles</div>
+    <nav class="schools" id="featHeritageNav" style="display:none;"></nav>
     <div class="rarity-filter" id="rarityFilter" style="margin-top:9px;">
       <span class="lbl">Rareza:</span>
     </div>
@@ -849,7 +863,14 @@
       document.getElementById('schoolNav').style.display = (mainTab==='spells') ? '' : 'none';
       document.getElementById('classNav').style.display = (mainTab==='focus') ? '' : 'none';
       document.getElementById('featNav').style.display = (mainTab==='feats') ? '' : 'none';
-      document.getElementById('featSkillNav').style.display = (mainTab==='feats' && featGroup==='skill') ? '' : 'none';
+      document.getElementById('featSkillNav').style.display = (mainTab==='feats' && featGroup!=='') ? '' : 'none';
+      if(mainTab!=='feats'){
+        document.getElementById('featHeritageNav').style.display = 'none';
+        document.getElementById('featSkillNavLabel').style.display = 'none';
+        document.getElementById('featHeritageNavLabel').style.display = 'none';
+      } else {
+        renderFeatSkillNav();
+      }
       document.getElementById('rarityFilter').style.display = (mainTab==='focus' || mainTab==='feats') ? 'none' : '';
       document.getElementById('rankFilter').style.display = (mainTab==='feats') ? 'none' : '';
       document.getElementById('knownToggle').style.display = (mainTab==='feats') ? 'none' : '';
@@ -878,33 +899,57 @@
     b.addEventListener('click', function(){
       featGroup = g.key;
       Array.prototype.forEach.call(featNav.children, function(el){el.classList.toggle('active', el.dataset.key===g.key);});
-      document.getElementById('featSkillNav').style.display = (featGroup==='skill') ? '' : 'none';
+      document.getElementById('featSkillNav').style.display = (featGroup!=='') ? '' : 'none';
+      currentFeatSkill = null;
+      renderFeatSkillNav();
       render();
     });
     featNav.appendChild(b);
   });
 
+  var VERSATILE_HERITAGES = {
+    'Nefilim':true, 'Dhampiro':true, 'Cambiante':true, 'Reencarnado':true,
+    'Esqueleto':true, 'Caminantecrepuscular':true, 'Aiuvarin':true, 'Dromaar':true
+  };
   var featSkillNav = document.getElementById('featSkillNav');
+  var featHeritageNav = document.getElementById('featHeritageNav');
+  var featSkillNavLabel = document.getElementById('featSkillNavLabel');
+  var featHeritageNavLabel = document.getElementById('featHeritageNavLabel');
   function renderFeatSkillNav(){
     featSkillNav.innerHTML = '';
+    featHeritageNav.innerHTML = '';
     var cats = [];
     FEATS.forEach(function(ft){
-      if(ft.group==='skill' && (gameMode==='sf' || ft.game!=='sf') && cats.indexOf(ft.category)===-1) cats.push(ft.category);
+      if(ft.group===featGroup && (gameMode==='sf' || ft.game!=='sf') && cats.indexOf(ft.category)===-1) cats.push(ft.category);
     });
-    cats.sort();
+    cats.sort(function(a,b){ return (FEAT_CAT_LABELS[a]||a).localeCompare(FEAT_CAT_LABELS[b]||b, 'es'); });
     if(!currentFeatSkill || cats.indexOf(currentFeatSkill)===-1) currentFeatSkill = cats[0] || null;
-    cats.forEach(function(cat){
-      var b = document.createElement('button');
-      b.textContent = FEAT_CAT_LABELS[cat] || cat;
-      b.dataset.key = cat;
-      if(cat === currentFeatSkill) b.classList.add('active');
-      b.addEventListener('click', function(){
-        currentFeatSkill = cat;
-        Array.prototype.forEach.call(featSkillNav.children, function(el){el.classList.toggle('active', el.dataset.key===cat);});
-        render();
+
+    var isAncestryGroup = (featGroup === 'ancestry');
+    var mainCats = isAncestryGroup ? cats.filter(function(c){ return !VERSATILE_HERITAGES[c]; }) : cats;
+    var heritageCats = isAncestryGroup ? cats.filter(function(c){ return VERSATILE_HERITAGES[c]; }) : [];
+
+    function buildButtons(container, list){
+      list.forEach(function(cat){
+        var b = document.createElement('button');
+        b.textContent = FEAT_CAT_LABELS[cat] || cat;
+        b.dataset.key = cat;
+        if(cat === currentFeatSkill) b.classList.add('active');
+        b.addEventListener('click', function(){
+          currentFeatSkill = cat;
+          Array.prototype.forEach.call(featSkillNav.children, function(el){el.classList.toggle('active', el.dataset.key===cat);});
+          Array.prototype.forEach.call(featHeritageNav.children, function(el){el.classList.toggle('active', el.dataset.key===cat);});
+          render();
+        });
+        container.appendChild(b);
       });
-      featSkillNav.appendChild(b);
-    });
+    }
+    buildButtons(featSkillNav, mainCats);
+    buildButtons(featHeritageNav, heritageCats);
+
+    featSkillNavLabel.style.display = (isAncestryGroup && mainCats.length) ? '' : 'none';
+    featHeritageNav.style.display = (isAncestryGroup && heritageCats.length) ? '' : 'none';
+    featHeritageNavLabel.style.display = (isAncestryGroup && heritageCats.length) ? '' : 'none';
   }
   var FEAT_CAT_LABELS = {
     'Acrobacias':'Acrobacias','Arcanos':'Arcanos','Atletismo':'Atletismo','Artesania':'Artesanía',
@@ -912,7 +957,23 @@
     'Medicina':'Medicina','Naturaleza':'Naturaleza','Ocultismo':'Ocultismo','Percepcion':'Percepción',
     'Interpretacion':'Interpretación','Religion':'Religión','Sociedad':'Sociedad','Sigilo':'Sigilo',
     'Supervivencia':'Supervivencia','Latrocinio':'Latrocinio','General':'General',
-    'Computadoras':'Computadoras','Pilotaje':'Pilotaje'
+    'Computadoras':'Computadoras','Pilotaje':'Pilotaje',
+    'Enano':'Enano','Elfo':'Elfo','Gnomo':'Gnomo','Humano':'Humano','Goblin':'Goblin',
+    'Halfling':'Halfling','Orco':'Orco','Leshy':'Leshy','Kholo':'Kholo','Ratonido':'Ratonido',
+    'Gatonido':'Gatonido','Tripkee':'Tripkee','Hombresaurio':'Hombresaurio','Tengu':'Tengu',
+    'Nefilim':'Nefilim','Hobgoblin':'Hobgoblin','Kobold':'Kobold','Sangredragón':'Sangredragón',
+    'Caminantecrepuscular':'Caminante del crepúsculo','Dhampiro':'Dhampiro','Cambiante':'Cambiante',
+    'Aiuvarin':'Aiuvarin','Dromaar':'Dromaar','Automata':'Autómata','Athamaru':'Athamaru',
+    'AnimalDespierto':'Animal despierto','Poppet':'Poppet','Azarketi':'Azarketi','Nagaji':'Nagaji',
+    'Vanara':'Vanara','Centauro':'Centauro','Deforme':'Deforme','Kitsune':'Kitsune','Yaoguai':'Yaoguai',
+    'Minotauro':'Minotauro','Kashrishi':'Kashrishi','Sirenido':'Sirénido','Vishkanya':'Vishkanya',
+    'Reencarnado':'Reencarnado','Draconato':'Draconato','Ghoran':'Ghoran','Jotunborn':'Jotunborn',
+    'Samsaran':'Samsaran','Sprite':'Sprite','Shisk':'Shisk','Tanuki':'Tanuki','Anadi':'Anadi',
+    'Androide':'Androide','Conrasu':'Conrasu','Surki':'Surki','Yaksha':'Yaksha','Sarangay':'Sarangay',
+    'Shoony':'Shoony','Esqueleto':'Esqueleto','Oread':'Oread','Wayang':'Wayang','Strix':'Strix',
+    'Beastkin':'Beastkin','Sylph':'Sylph','Fetchling':'Fetchling','Goloma':'Goloma','Suli':'Suli',
+    'Hungerseed':'Hungerseed','Naari':'Naari','Undine':'Undine','Ardande':'Ardande','Reflection':'Reflection',
+    'Talos':'Talos'
   };
 
   // ---- Construir nav de clases (conjuros de foco) ----
@@ -1247,7 +1308,7 @@
 
     var pool = FEATS.filter(function(ft){ return ft.group === featGroup; })
                      .filter(function(ft){ return gameMode === 'sf' || ft.game !== 'sf'; });
-    if(featGroup === 'skill' && currentFeatSkill){
+    if(currentFeatSkill){
       pool = pool.filter(function(ft){ return ft.category === currentFeatSkill; });
     }
     pool = pool.filter(matchesQuery)
