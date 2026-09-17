@@ -925,9 +925,9 @@
     cats.sort(function(a,b){ return (FEAT_CAT_LABELS[a]||a).localeCompare(FEAT_CAT_LABELS[b]||b, 'es'); });
     if(!currentFeatSkill || cats.indexOf(currentFeatSkill)===-1) currentFeatSkill = cats[0] || null;
 
-    var isAncestryGroup = (featGroup === 'ancestry');
-    var mainCats = isAncestryGroup ? cats.filter(function(c){ return !VERSATILE_HERITAGES[c]; }) : cats;
-    var heritageCats = isAncestryGroup ? cats.filter(function(c){ return VERSATILE_HERITAGES[c]; }) : [];
+    var isAncestryGroup = (featGroup === 'ancestry') && (mainTab === 'feats');
+    var mainCats = (featGroup === 'ancestry') ? cats.filter(function(c){ return !VERSATILE_HERITAGES[c]; }) : cats;
+    var heritageCats = (featGroup === 'ancestry') ? cats.filter(function(c){ return VERSATILE_HERITAGES[c]; }) : [];
 
     function buildButtons(container, list){
       list.forEach(function(cat){
@@ -950,6 +950,7 @@
     featSkillNavLabel.style.display = (isAncestryGroup && mainCats.length) ? '' : 'none';
     featHeritageNav.style.display = (isAncestryGroup && heritageCats.length) ? '' : 'none';
     featHeritageNavLabel.style.display = (isAncestryGroup && heritageCats.length) ? '' : 'none';
+    featSkillNav.style.display = (mainTab === 'feats' && featGroup !== '') ? '' : 'none';
   }
   var FEAT_CAT_LABELS = {
     'Acrobacias':'Acrobacias','Arcanos':'Arcanos','Atletismo':'Atletismo','Artesania':'Artesanía',
@@ -973,7 +974,17 @@
     'Shoony':'Shoony','Esqueleto':'Esqueleto','Oread':'Oread','Wayang':'Wayang','Strix':'Strix',
     'Beastkin':'Beastkin','Sylph':'Sylph','Fetchling':'Fetchling','Goloma':'Goloma','Suli':'Suli',
     'Hungerseed':'Hungerseed','Naari':'Naari','Undine':'Undine','Ardande':'Ardande','Reflection':'Reflection',
-    'Talos':'Talos'
+    'Talos':'Talos','Astrazoan':'Astrazoan','Kalo':'Kalo','Sarcesian':'Sarcesian','Dragonkin':'Dragonkin',
+    'Kasatha':'Kasatha','Skittermander':'Skittermander','Pahtra':'Pahtra','Vlaka':'Vlaka','Lashunta':'Lashunta',
+    'Bantrid':'Bantrid','Osharu':'Osharu','Urog':'Urog','Barathu':'Barathu','Gfolian':'Gfolian',
+    'Shobhad':'Shobhad','Ikeshti':'Ikeshti','Izalguun':'Izalguun','Vesk':'Vesk','Ysoki':'Ysoki',
+    'Copaxi':'Copaxi','Corpsefolk':'Corpsefolk','Vulkarisu':'Vulkarisu','Binnaquid':'Binnaquid','Elebrian':'Elebrian',
+    'Gnarefuroid':'Gnarefuroid','Nuar':'Nuar','Shirren':'Shirren','Trox':'Trox','Contemplative':'Contemplative',
+    'Formian':'Formian','Khizar':'Khizar','Maraquoi':'Maraquoi','Ryphorian':'Ryphorian','Fonqugon':'Fonqugon',
+    'Madrosarai':'Madrosarai','Orocoran':'Orocoran','Brenneri':'Brenneri','HumanoSF':'Humano (SF)','HalflingSF':'Halfling (SF)',
+    'AndroideSF':'Androide (SF)','Atraxid':'Atraxid','GoblinSF':'Goblin (SF)','Ijtikri':'Ijtikri','LeshySF':'Leshy (SF)',
+    'Mecenaic':'Mecenaic','Novian':'Novian','Borai':'Borai','DwarfSF':'Enano (SF)','Ord':'Ord',
+    'Prismeni':'Prismeni','Talphi':'Talphi','AndroideXenometrico':'Androide xenométrico','Entu':'Entu','TocadoPorLaBrecha':'Tocado por la Brecha','GnomoSF':'Gnomo (SF)','Hardor':'Hardor','OrcoSF':'Orco (SF)','Phasorq':'Phasorq','Moyishuu':'Moyishuu','Raxilite':'Raxilite','Worlanisi':'Worlanisi','ElfoSF':'Elfo (SF)','Estandarizada':'Estandarizadas (SF)'
   };
 
   // ---- Construir nav de clases (conjuros de foco) ----
