@@ -251,6 +251,27 @@
     color:var(--ink);
     font-weight:600;
   }
+  .feat-cat-select{
+    font-family:'Cinzel', serif;
+    font-size:13.5px;
+    letter-spacing:0.03em;
+    padding:8px 12px;
+    border:1px solid rgba(239,231,210,0.25);
+    background:rgba(239,231,210,0.06);
+    color:#d9d2b8;
+    border-radius:6px;
+    cursor:pointer;
+    max-width:100%;
+    width:280px;
+  }
+  .feat-cat-select option{
+    background:#1E3428;
+    color:#d9d2b8;
+    font-family:'Cinzel', serif;
+  }
+  @media (max-width:640px){
+    .feat-cat-select{ width:100%; }
+  }
 
   main{
     max-width:1180px; margin:0 auto; padding:22px 20px 80px;
@@ -888,8 +909,15 @@
   var FEAT_GROUPS = [
     {key:'ancestry', label:'Ascendencia'},
     {key:'skill', label:'Habilidad'},
-    {key:'class', label:'Clase'}
+    {key:'class', label:'Clase'},
+    {key:'archetype', label:'Arquetipo'}
   ];
+  function featMatchesGroup(ft, grp){
+    var isArchetype = ft.traits && ft.traits.some(function(t){ return String(t).toLowerCase() === 'archetype'; });
+    if(grp === 'archetype') return ft.group === 'class' && isArchetype;
+    if(grp === 'class') return ft.group === 'class' && !isArchetype;
+    return ft.group === grp;
+  }
   var featNav = document.getElementById('featNav');
   FEAT_GROUPS.forEach(function(g){
     var b = document.createElement('button');
@@ -920,7 +948,7 @@
     featHeritageNav.innerHTML = '';
     var cats = [];
     FEATS.forEach(function(ft){
-      if(ft.group===featGroup && (gameMode==='sf' || ft.game!=='sf') && cats.indexOf(ft.category)===-1) cats.push(ft.category);
+      if(featMatchesGroup(ft, featGroup) && (gameMode==='sf' || ft.game!=='sf') && cats.indexOf(ft.category)===-1) cats.push(ft.category);
     });
     cats.sort(function(a,b){ return (FEAT_CAT_LABELS[a]||a).localeCompare(FEAT_CAT_LABELS[b]||b, 'es'); });
     if(!currentFeatSkill || cats.indexOf(currentFeatSkill)===-1) currentFeatSkill = cats[0] || null;
@@ -930,6 +958,24 @@
     var heritageCats = (featGroup === 'ancestry') ? cats.filter(function(c){ return VERSATILE_HERITAGES[c]; }) : [];
 
     function buildButtons(container, list){
+      if(list.length > 15){
+        var select = document.createElement('select');
+        select.className = 'feat-cat-select';
+        list.forEach(function(cat){
+          var opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = FEAT_CAT_LABELS[cat] || cat;
+          opt.dataset.key = cat;
+          if(cat === currentFeatSkill) opt.selected = true;
+          select.appendChild(opt);
+        });
+        select.addEventListener('change', function(){
+          currentFeatSkill = select.value;
+          render();
+        });
+        container.appendChild(select);
+        return;
+      }
       list.forEach(function(cat){
         var b = document.createElement('button');
         b.textContent = FEAT_CAT_LABELS[cat] || cat;
@@ -1320,7 +1366,7 @@
     banner.innerHTML = '<div class="icon">D</div><div><h2>Dotes de '+ (groupLabel?groupLabel.label:'') +'</h2><p>Capacidades especiales que personalizan a tu personaje más allá de su clase.</p></div>';
     main.appendChild(banner);
 
-    var pool = FEATS.filter(function(ft){ return ft.group === featGroup; })
+    var pool = FEATS.filter(function(ft){ return featMatchesGroup(ft, featGroup); })
                      .filter(function(ft){ return gameMode === 'sf' || ft.game !== 'sf'; });
     if(currentFeatSkill){
       pool = pool.filter(function(ft){ return ft.category === currentFeatSkill; });
