@@ -913,7 +913,10 @@
     {key:'archetype', label:'Arquetipo'}
   ];
   function featMatchesGroup(ft, grp){
-    var isArchetype = ft.traits && ft.traits.some(function(t){ return String(t).toLowerCase() === 'archetype'; });
+    var isArchetype = ft.traits && ft.traits.some(function(t){
+      var s = String(t).toLowerCase();
+      return s === 'archetype' || s === 'arquetipo';
+    });
     if(grp === 'archetype') return ft.group === 'class' && isArchetype;
     if(grp === 'class') return ft.group === 'class' && !isArchetype;
     return ft.group === grp;
