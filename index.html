@@ -621,6 +621,9 @@
       <button class="char-btn" id="charAdd" title="Nuevo personaje">+ Nuevo</button>
       <button class="char-btn" id="charRename" title="Renombrar personaje">Renombrar</button>
       <button class="char-btn danger" id="charDelete" title="Borrar personaje">Borrar</button>
+      <button class="char-btn" id="charExport" title="Guardar el personaje en un archivo">Exportar</button>
+      <button class="char-btn" id="charImport" title="Cargar un personaje desde un archivo">Importar</button>
+      <input type="file" id="charImportFile" accept=".json,application/json" style="display:none">
     </div>
   </div>
 </header>
@@ -681,6 +684,7 @@
   var CHAR_ACTIVE_KEY = "pf2e-grimorio-personaje-activo";
   function charStorageKey(name){ return "pf2e-grimorio-preparados::" + name; }
   function charStorageKeyKnown(name){ return "pf2e-grimorio-conocidos::" + name; }
+  function charStorageKeyFeats(name){ return "pf2e-grimorio-dotes::" + name; }
 
   function loadCharacters(){
     var list = loadJSON(CHAR_LIST_KEY, null);
@@ -711,6 +715,12 @@
   function saveKnown(obj){
     saveJSON(charStorageKeyKnown(activeCharacter), obj);
   }
+  function loadChosenFeats(){
+    return loadJSON(charStorageKeyFeats(activeCharacter), {});
+  }
+  function saveChosenFeats(obj){
+    saveJSON(charStorageKeyFeats(activeCharacter), obj);
+  }
 
   function renderCharSelect(){
     var sel = document.getElementById('charSelect');
@@ -729,6 +739,7 @@
     saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
     prepared = loadPrepared();
     known = loadKnown();
+    chosenFeats = loadChosenFeats();
     updatePrepCount();
     updateKnownCount();
     render();
@@ -750,6 +761,7 @@
     renderCharSelect();
     prepared = loadPrepared();
     known = loadKnown();
+    chosenFeats = loadChosenFeats();
     updatePrepCount();
     updateKnownCount();
     render();
@@ -770,6 +782,8 @@
     var dataKnown = loadKnown();
     saveJSON(charStorageKeyKnown(name), dataKnown);
     try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
+    saveJSON(charStorageKeyFeats(name), loadChosenFeats());
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyFeats(activeCharacter)); }catch(e){}
     characters[characters.indexOf(activeCharacter)] = name;
     saveJSON(CHAR_LIST_KEY, characters);
     activeCharacter = name;
@@ -782,9 +796,10 @@
       alert('Tiene que quedar al menos un personaje.');
       return;
     }
-    if(!confirm('¿Borrar a "' + activeCharacter + '" y su lista de preparados y aprendidos? Esta acción no se puede deshacer.')) return;
+    if(!confirm('¿Borrar a "' + activeCharacter + '" con sus conjuros preparados, aprendidos y sus dotes? Esta acción no se puede deshacer.')) return;
     try{ if(hasLS) localStorage.removeItem(charStorageKey(activeCharacter)); }catch(e){}
     try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyFeats(activeCharacter)); }catch(e){}
     characters.splice(characters.indexOf(activeCharacter), 1);
     saveJSON(CHAR_LIST_KEY, characters);
     activeCharacter = characters[0];
@@ -792,13 +807,155 @@
     renderCharSelect();
     prepared = loadPrepared();
     known = loadKnown();
+    chosenFeats = loadChosenFeats();
     updatePrepCount();
     updateKnownCount();
     render();
   });
 
+  // Antes las dotes elegidas se guardaban junto a los conjuros preparados.
+  // Se mueven a su propio almacén una sola vez (solo los ids que son dotes y no conjuros).
+  function migrateFeatsFromPrepared(){
+    if(loadJSON("pf2e-grimorio-dotes-migradas", false)) return;
+    var spellIds = {};
+    [SPELLS, FOCUS_SPELLS, RITUALS].forEach(function(arr){
+      (arr || []).forEach(function(sp){ spellIds[String(sp.id)] = true; });
+    });
+    var featIds = {};
+    FEATS.forEach(function(f){ featIds[String(f.id)] = true; });
+    characters.forEach(function(name){
+      var prep = loadJSON(charStorageKey(name), {});
+      var fts = loadJSON(charStorageKeyFeats(name), {});
+      var changed = false;
+      Object.keys(prep).forEach(function(k){
+        if(prep[k] && featIds[k] && !spellIds[k]){
+          fts[k] = true; delete prep[k]; changed = true;
+        }
+      });
+      if(changed){
+        saveJSON(charStorageKey(name), prep);
+        saveJSON(charStorageKeyFeats(name), fts);
+      }
+    });
+    saveJSON("pf2e-grimorio-dotes-migradas", true);
+    prepared = loadPrepared();
+    chosenFeats = loadChosenFeats();
+  }
+
+  // ---- Exportar / importar personaje ----
+  var EXPORT_FORMAT = "pf2e-grimorio-personaje";
+
+  document.getElementById('charExport').addEventListener('click', function(){
+    var data = {
+      formato: EXPORT_FORMAT,
+      version: 2,
+      nombre: activeCharacter,
+      exportado: new Date().toISOString(),
+      preparados: loadPrepared(),
+      aprendidos: loadKnown(),
+      dotes: exportChosenFeats(loadChosenFeats())
+    };
+    var json = JSON.stringify(data, null, 2);
+    var fileName = activeCharacter.replace(/[\\\/:*?"<>|]+/g, '_') + '.json';
+    try{
+      var blob = new Blob([json], {type: 'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    }catch(e){
+      alert('No se pudo descargar el archivo en este navegador.');
+    }
+  });
+
+  document.getElementById('charImport').addEventListener('click', function(){
+    var input = document.getElementById('charImportFile');
+    input.value = '';
+    input.click();
+  });
+
+  document.getElementById('charImportFile').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var data;
+      try{ data = JSON.parse(reader.result); }catch(err){
+        alert('El archivo no es un JSON válido.');
+        return;
+      }
+      if(!data || data.formato !== EXPORT_FORMAT || typeof data.nombre !== 'string'){
+        alert('Este archivo no es un personaje exportado desde el grimorio.');
+        return;
+      }
+      var name = data.nombre.trim() || 'Personaje importado';
+      if(characters.indexOf(name) !== -1){
+        if(!confirm('Ya existe un personaje llamado "' + name + '". ¿Quieres sobrescribirlo?\n\nPulsa Cancelar para importarlo con otro nombre.')){
+          var base = name, n = 2;
+          while(characters.indexOf(base + ' (' + n + ')') !== -1) n++;
+          name = base + ' (' + n + ')';
+        }
+      }
+      var prep = (data.preparados && typeof data.preparados === 'object') ? data.preparados : {};
+      var kn = (data.aprendidos && typeof data.aprendidos === 'object') ? data.aprendidos : {};
+      saveJSON(charStorageKey(name), prep);
+      saveJSON(charStorageKeyKnown(name), kn);
+      var ftResult = importChosenFeats(data.dotes);
+      saveJSON(charStorageKeyFeats(name), ftResult.chosen);
+      if(characters.indexOf(name) === -1){
+        characters.push(name);
+        saveJSON(CHAR_LIST_KEY, characters);
+      }
+      activeCharacter = name;
+      saveJSON(CHAR_ACTIVE_KEY, activeCharacter);
+      renderCharSelect();
+      prepared = loadPrepared();
+      known = loadKnown();
+      chosenFeats = loadChosenFeats();
+      updatePrepCount();
+      updateKnownCount();
+      render();
+      var msg = 'Personaje "' + name + '" importado.';
+      if(ftResult.missing.length){
+        msg += '\n\nNo se han encontrado ' + ftResult.missing.length + ' dote(s) en los datos actuales:\n- ' + ftResult.missing.slice(0,15).join('\n- ') + (ftResult.missing.length>15 ? '\n…' : '');
+      }
+      alert(msg);
+    };
+    reader.onerror = function(){ alert('No se pudo leer el archivo.'); };
+    reader.readAsText(file);
+  });
+
+  // Las dotes se exportan con nombre, nivel y categoría además del id,
+  // para poder encontrarlas aunque cambie la numeración de feats.json.
+  function exportChosenFeats(sel){
+    return Object.keys(sel).filter(function(k){ return sel[k]; }).map(function(id){
+      var ft = FEATS.filter(function(f){ return String(f.id) === String(id); })[0];
+      return ft ? {id: ft.id, nombre: ft.name, nivel: ft.level, categoria: ft.category, grupo: ft.group}
+                : {id: isNaN(+id) ? id : +id};
+    });
+  }
+  function importChosenFeats(list){
+    var chosen = {}, missing = [];
+    if(!Array.isArray(list)) return {chosen: chosen, missing: missing};
+    list.forEach(function(d){
+      if(!d) return;
+      var ft = FEATS.filter(function(f){ return String(f.id) === String(d.id) && (!d.nombre || f.name === d.nombre); })[0];
+      if(!ft && d.nombre){
+        var cands = FEATS.filter(function(f){ return f.name === d.nombre; });
+        ft = cands.filter(function(f){ return f.category === d.categoria && f.level === d.nivel; })[0]
+          || cands.filter(function(f){ return f.category === d.categoria; })[0]
+          || cands[0];
+      }
+      if(ft) chosen[ft.id] = true;
+      else missing.push(d.nombre || ('id ' + d.id));
+    });
+    return {chosen: chosen, missing: missing};
+  }
+
   var prepared = loadPrepared();
   var known = loadKnown();
+  var chosenFeats = loadChosenFeats();
   var expanded = {};
   var currentSchool = "Arcano";
   var currentClass = null;
@@ -1114,7 +1271,8 @@
   });
 
   function updatePrepCount(){
-    var n = Object.keys(prepared).filter(function(k){return prepared[k];}).length;
+    var src = (mainTab==='feats') ? chosenFeats : prepared;
+    var n = Object.keys(src).filter(function(k){return src[k];}).length;
     var word = (mainTab==='feats') ? ('elegida' + (n===1?'':'s')) : ('preparado' + (n===1?'':'s'));
     document.getElementById('prepCount').innerHTML = '<b>'+n+'</b> ' + word;
   }
@@ -1127,6 +1285,12 @@
     prepared[id] = !prepared[id];
     if(!prepared[id]) delete prepared[id];
     savePrepared(prepared);
+    updatePrepCount();
+  }
+  function toggleFeat(id){
+    chosenFeats[id] = !chosenFeats[id];
+    if(!chosenFeats[id]) delete chosenFeats[id];
+    saveChosenFeats(chosenFeats);
     updatePrepCount();
   }
   function toggleKnownSpell(id){
@@ -1377,7 +1541,7 @@
       pool = pool.filter(function(ft){ return ft.category === currentFeatSkill; });
     }
     pool = pool.filter(matchesQuery)
-                .filter(function(ft){ return !showOnlyPrepared || prepared[ft.id]; });
+                .filter(function(ft){ return !showOnlyPrepared || chosenFeats[ft.id]; });
 
     if(pool.length === 0){
       var empty = document.createElement('div');
@@ -1409,7 +1573,7 @@
 
       atLevel.forEach(function(ft){
         var li = document.createElement('li');
-        li.className = 'spell-row' + (prepared[ft.id] ? ' prepared' : '') + (expanded[ft.id] ? ' expanded' : '');
+        li.className = 'spell-row' + (chosenFeats[ft.id] ? ' prepared' : '') + (expanded[ft.id] ? ' expanded' : '');
         var rarityHtml = '';
         if(ft.rarity === 'Poco común') rarityHtml = '<span class="rarity-badge uncommon">Poco común</span>';
         else if(ft.rarity === 'Raro') rarityHtml = '<span class="rarity-badge rare">Raro</span>';
@@ -1422,8 +1586,8 @@
         var chk = li.querySelector('[data-role="chk"]');
         chk.addEventListener('click', function(e){
           e.stopPropagation();
-          toggleSpell(ft.id);
-          li.classList.toggle('prepared', !!prepared[ft.id]);
+          toggleFeat(ft.id);
+          li.classList.toggle('prepared', !!chosenFeats[ft.id]);
         });
         li.addEventListener('click', function(){
           expanded[ft.id] = !expanded[ft.id];
@@ -1662,6 +1826,7 @@
     CLASSES = FOCUS_DATA.classes || [];
     RITUALS = results[2];
     FEATS = results[3];
+    migrateFeatsFromPrepared();
     renderClassNav();
     renderFeatSkillNav();
     updatePrepCount();
