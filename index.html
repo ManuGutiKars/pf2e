@@ -278,6 +278,63 @@
     position:relative; z-index:1;
   }
 
+  /* ---- Ficha ---- */
+  .ficha-section{max-width:860px;}
+  .ficha-select{
+    font-family:'EB Garamond',serif; font-size:16px; color:var(--ink);
+    background:var(--parchment); border:1px solid rgba(51,38,25,0.3); border-radius:6px;
+    padding:7px 10px; margin:4px 0 8px; width:100%; max-width:520px;
+  }
+  .ficha-detail{margin:4px 0 12px; font-size:15px; line-height:1.45;}
+  .ficha-detail p{margin:0 0 8px;}
+  .ficha-dl{display:grid; grid-template-columns:max-content 1fr; gap:3px 14px; margin:0;}
+  .ficha-dl dt{font-weight:600; color:var(--accent);}
+  .ficha-dl dd{margin:0;}
+  .ficha-note{font-size:13.5px; font-style:italic; color:var(--ink-soft); margin:4px 0;}
+  .ficha-check{display:block; font-size:15px; margin:4px 0; cursor:pointer;}
+  .ficha-multi{margin:6px 0 10px; columns:2 220px;}
+  .ficha-multi .ficha-boost-label{column-span:all;}
+  .ficha-boost-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:6px 0 10px;}
+  .ficha-boost-label{min-width:170px; font-weight:600; font-size:15px;}
+  .ficha-boost-label em{font-weight:400; color:var(--ink-soft);}
+  .ficha-chips{display:flex; gap:5px; flex-wrap:wrap;}
+  .ficha-chip{
+    font-family:'Cinzel',serif; font-size:12.5px; letter-spacing:.04em;
+    padding:5px 9px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--accent); background:transparent; color:var(--accent);
+  }
+  .ficha-chip.on{background:var(--accent); color:#fff;}
+  .ficha-chip.locked{opacity:.85; cursor:default;}
+  .ficha-chip:disabled:not(.on){opacity:.3; cursor:not-allowed;}
+  .ficha-boost-row .ficha-note{flex-basis:100%; margin:0 0 0 2px;}
+  .ficha-attrs{display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:8px; margin:6px 0 14px;}
+  .ficha-attr, .ficha-stat{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    border:1px solid rgba(51,38,25,0.18); border-radius:8px; padding:8px 4px; background:var(--accent-soft);
+  }
+  .ficha-attr-c{font-family:'Cinzel',serif; font-size:13px; color:var(--accent);}
+  .ficha-attr-v{font-size:24px; font-weight:600;}
+  .ficha-attr-v sup{font-size:12px;}
+  .ficha-attr-n{font-size:12px; color:var(--ink-soft);}
+  .ficha-stats{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:8px;}
+  .ficha-stat-v{font-size:24px; font-weight:600;}
+  .ficha-stat-l{font-size:14px; font-weight:600; color:var(--accent);}
+  .ficha-stat-r{font-size:12.5px; color:var(--ink-soft); font-style:italic;}
+  .ficha-level{border-left:3px solid var(--accent); padding:4px 0 8px 12px; margin:0 0 12px;}
+  .ficha-level-h{font-family:'Cinzel',serif; font-weight:600; color:var(--accent);}
+  .ficha-level-f{font-size:14px; color:var(--ink-soft); margin:2px 0 4px;}
+  .ficha-rasgo{font-size:15px; margin:2px 0;}
+  .ficha-rasgo summary{cursor:pointer;}
+  .ficha-rasgo > div{padding:4px 0 6px 16px; font-size:14.5px;}
+  .ficha-slot{display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px;}
+  .ficha-slot-l{min-width:170px; font-weight:600; font-size:15px;}
+  .ficha-slot .ficha-select{flex:1; min-width:220px; margin:3px 0;}
+  body.theme-sf .ficha-select{background:#0f2436; color:var(--ink);}
+  @media (max-width:640px){
+    .ficha-attrs{grid-template-columns:repeat(3, minmax(0,1fr));}
+    .ficha-boost-label, .ficha-slot-l{min-width:0; flex-basis:100%;}
+  }
+
   .school-banner{
     display:flex; align-items:center; gap:14px;
     margin-bottom:18px;
@@ -590,6 +647,7 @@
       <button class="main-tab" data-tab="focus">Conjuros de foco</button>
       <button class="main-tab" data-tab="rituals">Rituales</button>
       <button class="main-tab" data-tab="feats">Dotes</button>
+      <button class="main-tab" data-tab="ficha">Ficha</button>
     </div>
     <div class="controls">
       <div class="search-wrap">
@@ -740,6 +798,7 @@
     prepared = loadPrepared();
     known = loadKnown();
     chosenFeats = loadChosenFeats();
+    ficha = loadFicha();
     updatePrepCount();
     updateKnownCount();
     render();
@@ -762,6 +821,7 @@
     prepared = loadPrepared();
     known = loadKnown();
     chosenFeats = loadChosenFeats();
+    ficha = loadFicha();
     updatePrepCount();
     updateKnownCount();
     render();
@@ -784,6 +844,8 @@
     try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
     saveJSON(charStorageKeyFeats(name), loadChosenFeats());
     try{ if(hasLS) localStorage.removeItem(charStorageKeyFeats(activeCharacter)); }catch(e){}
+    saveJSON(charStorageKeyFicha(name), loadFicha());
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyFicha(activeCharacter)); }catch(e){}
     characters[characters.indexOf(activeCharacter)] = name;
     saveJSON(CHAR_LIST_KEY, characters);
     activeCharacter = name;
@@ -796,10 +858,11 @@
       alert('Tiene que quedar al menos un personaje.');
       return;
     }
-    if(!confirm('¿Borrar a "' + activeCharacter + '" con sus conjuros preparados, aprendidos y sus dotes? Esta acción no se puede deshacer.')) return;
+    if(!confirm('¿Borrar a "' + activeCharacter + '" con sus conjuros, dotes y ficha? Esta acción no se puede deshacer.')) return;
     try{ if(hasLS) localStorage.removeItem(charStorageKey(activeCharacter)); }catch(e){}
     try{ if(hasLS) localStorage.removeItem(charStorageKeyKnown(activeCharacter)); }catch(e){}
     try{ if(hasLS) localStorage.removeItem(charStorageKeyFeats(activeCharacter)); }catch(e){}
+    try{ if(hasLS) localStorage.removeItem(charStorageKeyFicha(activeCharacter)); }catch(e){}
     characters.splice(characters.indexOf(activeCharacter), 1);
     saveJSON(CHAR_LIST_KEY, characters);
     activeCharacter = characters[0];
@@ -808,6 +871,7 @@
     prepared = loadPrepared();
     known = loadKnown();
     chosenFeats = loadChosenFeats();
+    ficha = loadFicha();
     updatePrepCount();
     updateKnownCount();
     render();
@@ -842,18 +906,478 @@
     chosenFeats = loadChosenFeats();
   }
 
+  // =====================================================================
+  // ---- FICHA DE PERSONAJE ----
+  // =====================================================================
+  var BASE = null; // base.json (clases, ascendencias, versatiles, trasfondos)
+  var ATRS = [
+    {k:'fue', n:'Fuerza', c:'FUE'}, {k:'des', n:'Destreza', c:'DES'}, {k:'con', n:'Constitución', c:'CON'},
+    {k:'int', n:'Inteligencia', c:'INT'}, {k:'sab', n:'Sabiduría', c:'SAB'}, {k:'car', n:'Carisma', c:'CAR'}
+  ];
+  var ATR_NAME = {}; ATRS.forEach(function(a){ ATR_NAME[a.k] = a.n; });
+  var PROF_LABEL = ['No entrenado','Entrenado','Experto','Maestro','Legendario'];
+  var MEJORA_NIVELES = [5,10,15,20];
+
+  function charStorageKeyFicha(name){ return "pf2e-grimorio-ficha::" + name; }
+  function emptyFicha(){
+    return {nivel:1, ascendencia:null, herencia:null, trasfondo:null, clase:null, subclases:{},
+            mejoras:{ancAlternativa:false, ancLibres:[], trasfondo:[], clase:null, n1:[], n5:[], n10:[], n15:[], n20:[]},
+            dotes:{}};
+  }
+  function loadFicha(){
+    var f = loadJSON(charStorageKeyFicha(activeCharacter), null);
+    var base = emptyFicha();
+    if(!f) return base;
+    Object.keys(base).forEach(function(k){ if(f[k] === undefined) f[k] = base[k]; });
+    Object.keys(base.mejoras).forEach(function(k){ if(f.mejoras[k] === undefined) f.mejoras[k] = base.mejoras[k]; });
+    return f;
+  }
+  function saveFicha(){ saveJSON(charStorageKeyFicha(activeCharacter), ficha); }
+  var ficha = loadFicha();
+
+  function findBy(list, key, val){ return (list||[]).filter(function(x){ return x[key] === val; })[0] || null; }
+  function fClase(){ return BASE && ficha.clase ? findBy(BASE.clases, 'id', ficha.clase) : null; }
+  function fAsc(){ return BASE && ficha.ascendencia ? findBy(BASE.ascendencias, 'id', ficha.ascendencia) : null; }
+  function fTrasfondo(){ return BASE && ficha.trasfondo ? findBy(BASE.trasfondos, 'en', ficha.trasfondo) : null; }
+  function fHerencia(){
+    if(!BASE || !ficha.herencia) return null;
+    if(ficha.herencia.indexOf('v:') === 0){
+      var v = findBy(BASE.versatiles, 'id', ficha.herencia.slice(2));
+      return v ? {nombre: v.nombre, texto: v.resumen, versatil: v} : null;
+    }
+    var a = fAsc();
+    return a ? findBy(a.herencias, 'en', ficha.herencia) : null;
+  }
+
+  // ---- Atributos ----
+  function ancFixed(a){ return a ? a.mejoras.filter(function(x){ return x !== 'libre'; }) : []; }
+  function ancFreeCount(a){
+    if(!a) return 0;
+    if(ficha.mejoras.ancAlternativa) return 2;
+    return a.mejoras.filter(function(x){ return x === 'libre'; }).length;
+  }
+  function claveOptions(c){
+    if(!c) return [];
+    if(c.atributoClave.indexOf('otro') !== -1) return ATRS.map(function(a){ return a.k; });
+    return c.atributoClave;
+  }
+  function computeAttrs(){
+    var mod = {}, partial = {};
+    ATRS.forEach(function(a){ mod[a.k] = 0; partial[a.k] = 0; });
+    function boost(k){
+      if(!k || mod[k] === undefined) return;
+      if(mod[k] < 4) mod[k] += 1;
+      else { partial[k] += 1; if(partial[k] === 2){ mod[k] += 1; partial[k] = 0; } }
+    }
+    var a = fAsc(), c = fClase();
+    if(a){
+      if(!ficha.mejoras.ancAlternativa){
+        a.defectos.forEach(function(k){ mod[k] -= 1; });
+        ancFixed(a).forEach(boost);
+      }
+      ficha.mejoras.ancLibres.slice(0, ancFreeCount(a)).forEach(boost);
+    }
+    if(fTrasfondo()) ficha.mejoras.trasfondo.slice(0,2).forEach(boost);
+    if(c){
+      var opts = claveOptions(c);
+      boost(opts.length === 1 ? opts[0] : ficha.mejoras.clase);
+    }
+    ficha.mejoras.n1.slice(0,4).forEach(boost);
+    MEJORA_NIVELES.forEach(function(n){ if(ficha.nivel >= n) ficha.mejoras['n'+n].slice(0,4).forEach(boost); });
+    return {mod: mod, partial: partial};
+  }
+  function fmtMod(n){ return (n >= 0 ? '+' : '') + n; }
+
+  // ---- Competencias ----
+  function rankAt(c, stat){
+    if(!c) return 0;
+    var r = c.inicial[stat] || 0;
+    (c.mejorasCompetencia || []).forEach(function(m){
+      if(m.stat === stat && m.nivel <= ficha.nivel && m.rango > r) r = m.rango;
+    });
+    return r;
+  }
+  function profBonus(rank){ return rank > 0 ? rank*2 + ficha.nivel : 0; }
+
+  // ---- Huecos de dote ----
+  function featSlots(){
+    var c = fClase(); if(!c) return [];
+    var slots = [];
+    for(var lv = 1; lv <= ficha.nivel; lv++){
+      if(c.huecos.ascendencia.indexOf(lv) !== -1) slots.push({tipo:'ascendencia', nivel:lv, label:'Dote de ascendencia'});
+      if(c.huecos.clase.indexOf(lv) !== -1) slots.push({tipo:'clase', nivel:lv, label:'Dote de ' + c.nombre.toLowerCase()});
+      if(c.huecos.habilidad.indexOf(lv) !== -1) slots.push({tipo:'habilidad', nivel:lv, label:'Dote de habilidad'});
+      if(c.huecos.general.indexOf(lv) !== -1) slots.push({tipo:'general', nivel:lv, label:'Dote general'});
+    }
+    return slots;
+  }
+  function slotKey(s){ return s.tipo + '-' + s.nivel; }
+  function hasTrait(ft, t){ return (ft.traits||[]).some(function(x){ return String(x).toLowerCase() === t; }); }
+  function isArchetypeFeat(ft){ return hasTrait(ft,'arquetipo') || hasTrait(ft,'archetype'); }
+  function chosenInFicha(){
+    var out = {};
+    Object.keys(ficha.dotes).forEach(function(k){ var d = ficha.dotes[k]; if(d) out[d.id] = k; });
+    return out;
+  }
+  function slotCandidates(s){
+    var c = fClase(), a = fAsc(), h = fHerencia();
+    var pf = FEATS.filter(function(ft){ return ft.game !== 'sf' && (ft.level||0) <= s.nivel; });
+    if(s.tipo === 'ascendencia'){
+      var cats = [];
+      if(a) cats.push(a.categoriaDotes);
+      if(h && h.versatil) cats.push(h.versatil.categoriaDotes);
+      return {main: pf.filter(function(ft){ return ft.group === 'ancestry' && cats.indexOf(ft.category) !== -1; }), extra: []};
+    }
+    if(s.tipo === 'clase'){
+      var main = pf.filter(function(ft){ return ft.group === 'class' && !isArchetypeFeat(ft) && c && ft.category === c.categoriaDotes; });
+      var extra = [];
+      if(s.nivel >= 2){
+        // dedicaciones + dotes de arquetipos cuya dedicación ya se ha elegido en otro hueco
+        var chosenCats = {};
+        Object.keys(ficha.dotes).forEach(function(k){
+          var d = ficha.dotes[k]; if(!d || k === slotKey(s)) return;
+          var ft = FEATS.filter(function(f){ return f.id === d.id; })[0];
+          if(ft && isArchetypeFeat(ft) && hasTrait(ft,'dedicación')) chosenCats[ft.category] = true;
+        });
+        extra = pf.filter(function(ft){
+          return ft.group === 'class' && isArchetypeFeat(ft) && (hasTrait(ft,'dedicación') || chosenCats[ft.category]);
+        });
+      }
+      return {main: main, extra: extra};
+    }
+    if(s.tipo === 'habilidad'){
+      return {main: pf.filter(function(ft){ return ft.group === 'skill' && hasTrait(ft,'habilidad'); }), extra: []};
+    }
+    // general: dotes generales y de habilidad
+    return {main: pf.filter(function(ft){ return ft.group === 'skill'; }), extra: []};
+  }
+
+  // ---- Render ----
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html !== undefined) e.innerHTML = html; return e; }
+  function textToHtml(t){
+    return escapeHtml(t || '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/_([^_]+)_/g, '<em>$1</em>').replace(/\n/g, '<br>');
+  }
+  function section(title, sub){
+    var s = el('div','rank-section ficha-section');
+    s.appendChild(el('div','rank-title', escapeHtml(title) + (sub ? ' <span class="count">'+sub+'</span>' : '')));
+    return s;
+  }
+  function makeSelect(options, value, placeholder, onChange){
+    var sel = el('select','ficha-select');
+    var o0 = el('option'); o0.value = ''; o0.textContent = placeholder; sel.appendChild(o0);
+    options.forEach(function(o){
+      if(o.group){
+        var g = document.createElement('optgroup'); g.label = o.group;
+        o.items.forEach(function(it){ var op = el('option'); op.value = it.value; op.textContent = it.label; if(it.value === value) op.selected = true; g.appendChild(op); });
+        sel.appendChild(g);
+      } else {
+        var op = el('option'); op.value = o.value; op.textContent = o.label; if(o.value === value) op.selected = true; sel.appendChild(op);
+      }
+    });
+    sel.addEventListener('change', function(){ onChange(sel.value || null); });
+    return sel;
+  }
+  function detailBox(html){ var d = el('div','spell-detail ficha-detail'); d.innerHTML = html; return d; }
+  function rarLabel(r){ return r && r !== 'Común' ? ' (' + r.toLowerCase() + ')' : ''; }
+  function change(fn){ fn(); saveFicha(); render(); }
+
+  function boostRow(label, selected, need, isAllowed, onToggle, lockedKeys, note){
+    var row = el('div','ficha-boost-row');
+    row.appendChild(el('span','ficha-boost-label', escapeHtml(label) + (need ? ' <em>('+ selected.length + '/' + need + ')</em>' : '')));
+    var chips = el('span','ficha-chips');
+    ATRS.forEach(function(a){
+      var b = el('button','ficha-chip', a.c);
+      b.title = a.n;
+      var locked = lockedKeys && lockedKeys.indexOf(a.k) !== -1;
+      var on = locked || selected.indexOf(a.k) !== -1;
+      if(on) b.classList.add('on');
+      if(locked){ b.classList.add('locked'); b.disabled = true; }
+      else if(!on && (selected.length >= need || !isAllowed(a.k))){ b.disabled = true; }
+      if(!locked) b.addEventListener('click', function(){ onToggle(a.k); });
+      chips.appendChild(b);
+    });
+    row.appendChild(chips);
+    if(note) row.appendChild(el('div','ficha-note', note));
+    return row;
+  }
+  function toggleIn(arr, k){ var i = arr.indexOf(k); if(i === -1) arr.push(k); else arr.splice(i,1); }
+
+  function renderFicha(){
+    var main = document.getElementById('main');
+    main.innerHTML = '';
+    document.documentElement.style.setProperty('--accent', '#7a3b1f');
+    document.documentElement.style.setProperty('--accent-soft', 'rgba(122,59,31,0.12)');
+
+    var banner = el('div','school-banner');
+    banner.innerHTML = '<div class="icon">F</div><div><h2>Ficha de ' + escapeHtml(activeCharacter) + '</h2><p>Ascendencia, trasfondo, clase, atributos y progresión por nivel.</p></div>';
+    main.appendChild(banner);
+
+    if(!BASE){
+      main.appendChild(el('div','empty-msg','No se ha podido cargar <b>base.json</b>. Ponlo en la misma carpeta que index.html.'));
+      return;
+    }
+    if(gameMode === 'sf'){
+      main.appendChild(el('div','empty-msg','La ficha solo está disponible para Pathfinder por ahora.'));
+      return;
+    }
+    var a = fAsc(), h = fHerencia(), t = fTrasfondo(), c = fClase();
+
+    // ---- Nivel ----
+    var sN = section('Nivel');
+    var nivelSel = makeSelect(Array.from({length:20}, function(_,i){ return {value:String(i+1), label:'Nivel ' + (i+1)}; }), String(ficha.nivel), 'Nivel', function(v){
+      change(function(){ ficha.nivel = parseInt(v || '1', 10); });
+    });
+    sN.appendChild(nivelSel);
+    main.appendChild(sN);
+
+    // ---- Ascendencia y herencia ----
+    var sA = section('Ascendencia y herencia');
+    sA.appendChild(makeSelect(BASE.ascendencias.map(function(x){ return {value:x.id, label:x.nombre + rarLabel(x.rareza)}; }), ficha.ascendencia, 'Elige ascendencia…', function(v){
+      change(function(){ ficha.ascendencia = v; ficha.herencia = null; ficha.mejoras.ancLibres = []; });
+    }));
+    if(a){
+      var info = '<p>' + escapeHtml(a.resumen) + '</p><dl class="ficha-dl">' +
+        '<dt>PG</dt><dd>' + a.pg + '</dd><dt>Tamaño</dt><dd>' + escapeHtml(a.tamano.join(', ')) + '</dd>' +
+        '<dt>Velocidad</dt><dd>' + a.velocidad + ' pies</dd>' +
+        '<dt>Mejoras</dt><dd>' + a.mejoras.map(function(k){ return k === 'libre' ? 'Libre' : ATR_NAME[k]; }).join(', ') + '</dd>' +
+        (a.defectos.length ? '<dt>Defecto</dt><dd>' + a.defectos.map(function(k){ return ATR_NAME[k]; }).join(', ') + '</dd>' : '') +
+        '<dt>Idiomas</dt><dd>' + escapeHtml(a.idiomas.join(', ')) + '</dd>' +
+        (a.vision ? '<dt>Visión</dt><dd>' + escapeHtml(a.vision) + '</dd>' : '') +
+        '<dt>Rasgos</dt><dd>' + escapeHtml(a.rasgos.join(', ')) + '</dd></dl>' +
+        (a.nota ? '<p class="ficha-note">' + escapeHtml(a.nota) + '</p>' : '');
+      sA.appendChild(detailBox(info));
+      var hOpts = [{group:'Herencias de ' + a.nombre.toLowerCase(), items: a.herencias.map(function(x){ return {value:x.en, label:x.nombre + rarLabel(x.rareza)}; })},
+                   {group:'Herencias versátiles', items: BASE.versatiles.map(function(x){ return {value:'v:' + x.id, label:x.nombre + rarLabel(x.rareza)}; })}];
+      sA.appendChild(makeSelect(hOpts, ficha.herencia, 'Elige herencia…', function(v){ change(function(){ ficha.herencia = v; }); }));
+      if(h) sA.appendChild(detailBox(textToHtml(h.texto)));
+    }
+    main.appendChild(sA);
+
+    // ---- Trasfondo ----
+    var sT = section('Trasfondo');
+    sT.appendChild(makeSelect(BASE.trasfondos.map(function(x){ return {value:x.en, label:x.nombre + rarLabel(x.rareza)}; }), ficha.trasfondo, 'Elige trasfondo…', function(v){
+      change(function(){ ficha.trasfondo = v; ficha.mejoras.trasfondo = []; });
+    }));
+    if(t) sT.appendChild(detailBox(textToHtml(t.texto)));
+    main.appendChild(sT);
+
+    // ---- Clase ----
+    var sC = section('Clase');
+    sC.appendChild(makeSelect(BASE.clases.map(function(x){ return {value:x.id, label:x.nombre + rarLabel(x.rareza)}; }), ficha.clase, 'Elige clase…', function(v){
+      change(function(){ ficha.clase = v; ficha.subclases = {}; ficha.mejoras.clase = null;
+        Object.keys(ficha.dotes).forEach(function(k){ if(k.indexOf('clase-') === 0) delete ficha.dotes[k]; }); });
+    }));
+    if(c){
+      var cinfo = '<p>' + escapeHtml(c.resumen) + '</p><dl class="ficha-dl">' +
+        '<dt>PG por nivel</dt><dd>' + c.pg + ' + Constitución</dd>' +
+        '<dt>Atributo clave</dt><dd>' + claveOptions(c).map(function(k){ return ATR_NAME[k]; }).join(' o ') + '</dd>' +
+        (c.tradicion.length ? '<dt>Tradición</dt><dd>' + escapeHtml(c.tradicion.join(', ')) + '</dd>' : '') +
+        '<dt>Habilidades</dt><dd>' + c.habilidades.map(escapeHtml).join('<br>') + '</dd>' +
+        '<dt>Ataques</dt><dd>' + c.ataques.map(escapeHtml).join('<br>') + '</dd>' +
+        '<dt>Defensas</dt><dd>' + c.defensas.map(escapeHtml).join('<br>') + '</dd></dl>';
+      sC.appendChild(detailBox(cinfo));
+      c.subclases.forEach(function(sub){
+        var chosen = ficha.subclases[sub.tipo] || [];
+        if(sub.elegir <= 1){
+          sC.appendChild(makeSelect(sub.opciones.map(function(o){ return {value:o.en, label:o.nombre + rarLabel(o.rareza)}; }), chosen[0] || null, 'Elige ' + sub.etiqueta.toLowerCase() + '…', function(v){
+            change(function(){ ficha.subclases[sub.tipo] = v ? [v] : []; });
+          }));
+        } else {
+          var box = el('div','ficha-multi');
+          box.appendChild(el('div','ficha-boost-label', escapeHtml(sub.etiqueta) + ' <em>(' + chosen.length + '/' + sub.elegir + ')</em>'));
+          sub.opciones.forEach(function(o){
+            var lab = el('label','ficha-check');
+            var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = chosen.indexOf(o.en) !== -1;
+            if(!cb.checked && chosen.length >= sub.elegir) cb.disabled = true;
+            cb.addEventListener('change', function(){ change(function(){ var arr = ficha.subclases[sub.tipo] = (ficha.subclases[sub.tipo] || []); toggleIn(arr, o.en); }); });
+            lab.appendChild(cb); lab.appendChild(document.createTextNode(' ' + o.nombre));
+            box.appendChild(lab);
+          });
+          sC.appendChild(box);
+        }
+        chosen.forEach(function(en){
+          var o = findBy(sub.opciones, 'en', en);
+          if(o) sC.appendChild(detailBox('<strong>' + escapeHtml(o.nombre) + '</strong><br>' + textToHtml(o.texto)));
+        });
+      });
+    }
+    main.appendChild(sC);
+
+    // ---- Atributos ----
+    var sM = section('Atributos');
+    if(a){
+      var alt = el('label','ficha-check');
+      var altCb = document.createElement('input'); altCb.type = 'checkbox'; altCb.checked = !!ficha.mejoras.ancAlternativa;
+      altCb.addEventListener('change', function(){ change(function(){ ficha.mejoras.ancAlternativa = altCb.checked; ficha.mejoras.ancLibres = []; }); });
+      alt.appendChild(altCb); alt.appendChild(document.createTextNode(' Usar 2 mejoras libres en lugar de las de la ascendencia (sin defecto)'));
+      sM.appendChild(alt);
+      var fixed = ficha.mejoras.ancAlternativa ? [] : ancFixed(a);
+      sM.appendChild(boostRow('Ascendencia', ficha.mejoras.ancLibres, ancFreeCount(a), function(k){ return fixed.indexOf(k) === -1; },
+        function(k){ change(function(){ toggleIn(ficha.mejoras.ancLibres, k); }); }, fixed,
+        (!ficha.mejoras.ancAlternativa && a.defectos.length) ? 'Defecto: ' + a.defectos.map(function(k){ return ATR_NAME[k]; }).join(', ') : ''));
+    }
+    if(t){
+      var tOpts = t.mejoras.filter(function(k){ return ATR_NAME[k]; });
+      var sel = ficha.mejoras.trasfondo;
+      sM.appendChild(boostRow('Trasfondo', sel, 2, function(k){
+        if(!tOpts.length) return true;
+        var other = sel.filter(function(x){ return x !== k; });
+        // una de las dos debe estar entre las opciones del trasfondo
+        if(sel.length === 1 && tOpts.indexOf(sel[0]) === -1) return tOpts.indexOf(k) !== -1;
+        return true;
+      }, function(k){ change(function(){ toggleIn(ficha.mejoras.trasfondo, k); }); }, null,
+      tOpts.length ? 'Una de ellas debe ser ' + tOpts.map(function(k){ return ATR_NAME[k]; }).join(' o ') + '; la otra es libre.' : ''));
+    }
+    if(c){
+      var ko = claveOptions(c);
+      if(ko.length === 1) sM.appendChild(boostRow('Clase (atributo clave)', [], 0, function(){ return false; }, function(){}, ko));
+      else sM.appendChild(boostRow('Clase (atributo clave)', ficha.mejoras.clase ? [ficha.mejoras.clase] : [], 1, function(k){ return ko.indexOf(k) !== -1; },
+        function(k){ change(function(){ ficha.mejoras.clase = (ficha.mejoras.clase === k) ? null : k; }); }));
+    }
+    sM.appendChild(boostRow('Nivel 1 (libres)', ficha.mejoras.n1, 4, function(){ return true; }, function(k){ change(function(){ toggleIn(ficha.mejoras.n1, k); }); }));
+    MEJORA_NIVELES.forEach(function(n){
+      if(ficha.nivel >= n) sM.appendChild(boostRow('Nivel ' + n, ficha.mejoras['n'+n], 4, function(){ return true; }, function(k){ change(function(){ toggleIn(ficha.mejoras['n'+n], k); }); }, null,
+        n === 5 ? 'Si un atributo ya está en +4 o más, la mejora solo cuenta la mitad: hacen falta dos para subir 1.' : ''));
+    });
+    var at = computeAttrs();
+    var grid = el('div','ficha-attrs');
+    ATRS.forEach(function(x){
+      var box = el('div','ficha-attr');
+      box.innerHTML = '<span class="ficha-attr-c">' + x.c + '</span><span class="ficha-attr-v">' + fmtMod(at.mod[x.k]) + (at.partial[x.k] ? '<sup>½</sup>' : '') + '</span><span class="ficha-attr-n">' + x.n + '</span>';
+      grid.appendChild(box);
+    });
+    sM.insertBefore(grid, sM.children[1]);
+    main.appendChild(sM);
+
+    // ---- Resumen ----
+    if(a && c){
+      var m = at.mod;
+      var hp = (a.pg || 0) + (c.pg + m.con) * ficha.nivel;
+      var clave = claveOptions(c).length === 1 ? claveOptions(c)[0] : ficha.mejoras.clase;
+      var claveMod = clave ? m[clave] : 0;
+      function stat(label, stat, modKey, base){
+        var r = rankAt(c, stat), v = (base || 0) + profBonus(r) + (modKey ? m[modKey] : claveMod);
+        return '<div class="ficha-stat"><span class="ficha-stat-v">' + (base ? v : fmtMod(v)) + '</span><span class="ficha-stat-l">' + label + '</span><span class="ficha-stat-r">' + PROF_LABEL[r] + '</span></div>';
+      }
+      var sR = section('Resumen', '(sin equipo)');
+      var stats = el('div','ficha-stats');
+      stats.innerHTML =
+        '<div class="ficha-stat"><span class="ficha-stat-v">' + hp + '</span><span class="ficha-stat-l">Puntos de Golpe</span><span class="ficha-stat-r">' + a.pg + ' + (' + c.pg + ' ' + fmtMod(m.con) + ') × ' + ficha.nivel + '</span></div>' +
+        stat('CA (sin armadura)', 'def', 'des', 10) +
+        stat('Percepción', 'per', 'sab') +
+        stat('Fortaleza', 'fort', 'con') +
+        stat('Reflejos', 'ref', 'des') +
+        stat('Voluntad', 'vol', 'sab') +
+        stat('CD de clase', 'cd', null, 10) +
+        (c.conjuros ? stat('Ataque de conjuros', 'conj', null) + stat('CD de conjuros', 'conj', null, 10) : '') +
+        '<div class="ficha-stat"><span class="ficha-stat-v">' + a.velocidad + '</span><span class="ficha-stat-l">Velocidad (pies)</span><span class="ficha-stat-r">' + escapeHtml(a.tamano.join(', ')) + '</span></div>';
+      sR.appendChild(stats);
+      if(!clave) sR.appendChild(el('div','ficha-note','Elige el atributo clave de la clase para calcular la CD de clase.'));
+      main.appendChild(sR);
+    }
+
+    // ---- Progresión ----
+    if(c){
+      var sP = section('Progresión', '(nivel 1 a ' + ficha.nivel + ')');
+      var slots = featSlots();
+      var used = chosenInFicha();
+      for(var lv = 1; lv <= ficha.nivel; lv++){
+        var block = el('div','ficha-level');
+        block.appendChild(el('div','ficha-level-h', 'Nivel ' + lv));
+        var feats = (c.progresion[String(lv)] || []).join(', ');
+        block.appendChild(el('div','ficha-level-f', escapeHtml(feats)));
+        var rasgos = c.rasgos.filter(function(r){ return r.nivel === lv; });
+        rasgos.forEach(function(r){
+          var d = el('details','ficha-rasgo');
+          d.innerHTML = '<summary>' + escapeHtml(r.nombre) + '</summary><div>' + textToHtml(r.texto) + '</div>';
+          block.appendChild(d);
+        });
+        slots.filter(function(s){ return s.nivel === lv; }).forEach(function(s){
+          var key = slotKey(s);
+          var cand = slotCandidates(s);
+          var cur = ficha.dotes[key];
+          function opts(list){
+            var byLv = {};
+            list.forEach(function(ft){ if(used[ft.id] && used[ft.id] !== key) return; (byLv[ft.level||0] = byLv[ft.level||0] || []).push(ft); });
+            return Object.keys(byLv).map(Number).sort(function(x,y){ return y-x; }).map(function(L){
+              return {group: 'Nivel ' + L, items: byLv[L].sort(function(x,y){ return x.name.localeCompare(y.name,'es'); })
+                .map(function(ft){ return {value:String(ft.id), label:ft.name + (s.tipo !== 'ascendencia' && s.tipo !== 'clase' ? ' — ' + (FEAT_CAT_LABELS[ft.category] || ft.category) : '') + rarLabel(ft.rarity)}; })};
+            });
+          }
+          var options = opts(cand.main);
+          if(cand.extra.length){
+            var ex = opts(cand.extra);
+            ex.forEach(function(g){ g.group = 'Arquetipo · ' + g.group; });
+            options = options.concat(ex);
+          }
+          var row = el('div','ficha-slot');
+          row.appendChild(el('span','ficha-slot-l', escapeHtml(s.label)));
+          row.appendChild(makeSelect(options, cur ? String(cur.id) : null, '— sin elegir —', function(v){
+            change(function(){
+              if(!v){ delete ficha.dotes[key]; return; }
+              var ft = FEATS.filter(function(f){ return String(f.id) === v; })[0];
+              ficha.dotes[key] = ft ? {id: ft.id, nombre: ft.name} : null;
+            });
+          }));
+          block.appendChild(row);
+          if(cur){
+            var ftc = FEATS.filter(function(f){ return f.id === cur.id; })[0];
+            if(ftc){
+              var dd = el('details','ficha-rasgo');
+              dd.innerHTML = '<summary>' + escapeHtml(ftc.name) + (ftc.desc ? ' — <em>' + escapeHtml(ftc.desc) + '</em>' : '') + '</summary><div>' + buildFeatDetailHtml(ftc) + '</div>';
+              block.appendChild(dd);
+            } else {
+              block.appendChild(el('div','ficha-note','La dote «' + escapeHtml(cur.nombre || '') + '» ya no está en feats.json.'));
+            }
+          }
+        });
+        sP.appendChild(block);
+      }
+      main.appendChild(sP);
+    }
+  }
+
+  // ---- Exportar / importar la ficha ----
+  function exportFicha(name){
+    var f = loadJSON(charStorageKeyFicha(name), null);
+    if(!f) return null;
+    f = JSON.parse(JSON.stringify(f));
+    Object.keys(f.dotes || {}).forEach(function(k){
+      var d = f.dotes[k]; if(!d) return;
+      var ft = FEATS.filter(function(x){ return x.id === d.id; })[0];
+      if(ft) f.dotes[k] = {id: ft.id, nombre: ft.name, nivel: ft.level, categoria: ft.category};
+    });
+    return f;
+  }
+  function importFicha(f){
+    var missing = [];
+    if(!f || typeof f !== 'object') return {ficha: null, missing: missing};
+    var out = JSON.parse(JSON.stringify(f));
+    Object.keys(out.dotes || {}).forEach(function(k){
+      var d = out.dotes[k]; if(!d) return;
+      var r = importChosenFeats([{id: d.id, nombre: d.nombre, nivel: d.nivel, categoria: d.categoria}]);
+      var ids = Object.keys(r.chosen);
+      if(ids.length){
+        var ft = FEATS.filter(function(x){ return String(x.id) === ids[0]; })[0];
+        out.dotes[k] = {id: ft.id, nombre: ft.name};
+      } else { missing.push(d.nombre || ('id ' + d.id)); delete out.dotes[k]; }
+    });
+    return {ficha: out, missing: missing};
+  }
+
   // ---- Exportar / importar personaje ----
   var EXPORT_FORMAT = "pf2e-grimorio-personaje";
 
   document.getElementById('charExport').addEventListener('click', function(){
     var data = {
       formato: EXPORT_FORMAT,
-      version: 2,
+      version: 3,
       nombre: activeCharacter,
       exportado: new Date().toISOString(),
       preparados: loadPrepared(),
       aprendidos: loadKnown(),
-      dotes: exportChosenFeats(loadChosenFeats())
+      dotes: exportChosenFeats(loadChosenFeats()),
+      ficha: exportFicha(activeCharacter)
     };
     var json = JSON.stringify(data, null, 2);
     var fileName = activeCharacter.replace(/[\\\/:*?"<>|]+/g, '_') + '.json';
@@ -903,6 +1427,10 @@
       saveJSON(charStorageKeyKnown(name), kn);
       var ftResult = importChosenFeats(data.dotes);
       saveJSON(charStorageKeyFeats(name), ftResult.chosen);
+      var fiResult = importFicha(data.ficha);
+      if(fiResult.ficha) saveJSON(charStorageKeyFicha(name), fiResult.ficha);
+      else { try{ if(hasLS) localStorage.removeItem(charStorageKeyFicha(name)); }catch(e){} }
+      ftResult.missing = ftResult.missing.concat(fiResult.missing);
       if(characters.indexOf(name) === -1){
         characters.push(name);
         saveJSON(CHAR_LIST_KEY, characters);
@@ -913,6 +1441,7 @@
       prepared = loadPrepared();
       known = loadKnown();
       chosenFeats = loadChosenFeats();
+      ficha = loadFicha();
       updatePrepCount();
       updateKnownCount();
       render();
@@ -1054,6 +1583,13 @@
       document.getElementById('knownToggle').style.display = (mainTab==='feats') ? 'none' : '';
       document.getElementById('knownCount').style.display = (mainTab==='feats') ? 'none' : '';
       prepToggle.textContent = (mainTab==='feats') ? (showOnlyPrepared ? '★ Mostrando elegidas' : '☆ Solo elegidas') : (showOnlyPrepared ? '★ Mostrando preparados' : '☆ Solo preparados');
+      var isFicha = (mainTab === 'ficha');
+      document.querySelector('header .controls').style.display = isFicha ? 'none' : '';
+      if(isFicha){
+        ['rarityFilter','rankFilter','featNav','featSkillNav','featHeritageNav','featSkillNavLabel','featHeritageNavLabel'].forEach(function(id){
+          document.getElementById(id).style.display = 'none';
+        });
+      }
       updatePrepCount();
       document.getElementById('search').placeholder = (mainTab==='focus') ? 'Buscar conjuro de foco por nombre o efecto…' : (mainTab==='rituals' ? 'Buscar ritual por nombre o efecto…' : (mainTab==='feats' ? 'Buscar dote por nombre o efecto…' : 'Buscar conjuro por nombre o efecto…'));
       render();
@@ -1309,6 +1845,7 @@
     if(mainTab === 'focus') renderFocus();
     else if(mainTab === 'rituals') renderRituals();
     else if(mainTab === 'feats') renderFeats();
+    else if(mainTab === 'ficha') renderFicha();
     else renderSpells();
   }
 
@@ -1818,8 +2355,10 @@
     fetch('spells.json').then(function(r){ return r.json(); }),
     fetch('focus.json').then(function(r){ return r.json(); }),
     fetch('rituals.json').then(function(r){ return r.json(); }),
-    fetch('feats.json').then(function(r){ return r.json(); })
+    fetch('feats.json').then(function(r){ return r.json(); }),
+    fetch('base.json').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
   ]).then(function(results){
+    BASE = results[4];
     SPELLS = results[0];
     FOCUS_DATA = results[1];
     FOCUS_SPELLS = FOCUS_DATA.spells || [];
